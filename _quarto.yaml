@@ -10,6 +10,8 @@ website:
         text: Home
       - href: eda.qmd
         text: EDA
+      - href: trabajo.qmd
+        text: Trabajo_Ecuador
  
 format:
   html:
