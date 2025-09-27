@@ -1,2 +1,5 @@
 networking.txt
 prueba.py
+
+/.quarto/
+**/*.quarto_ipynb

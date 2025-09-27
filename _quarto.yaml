@@ -1,0 +1,20 @@
+project:
+  type: website
+  output-dir: docs  # Cambiar de _site a docs
+ 
+website:
+  title: "Machine Learning"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: eda.qmd
+        text: EDA
+ 
+format:
+  html:
+    theme: cosmo
+    toc: true
+    code-fold: true
+    fig-align: center
+    df-print: paged
