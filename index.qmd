@@ -66,5 +66,5 @@ alt.Chart(cars).mark_line(point=True).encode(
     alt.X('Year', title='Año'),
     alt.Y('mean(Weight_in_lbs)', title='Promedio de Weight_in_lbs'),
     alt.Color('Origin')
-).properties(title='Promedio de Weight_in_lbs por Año', width=600)
+).properties(title='Promedio de Weight_in_lbs por Año', width=600).interactive()
 ```
