@@ -159,6 +159,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#provincias-más-contratadas" id="toc-provincias-más-contratadas" class="nav-link" data-scroll-target="#provincias-más-contratadas">Provincias más contratadas</a></li>
   <li><a href="#provincias-menos-contratadas" id="toc-provincias-menos-contratadas" class="nav-link" data-scroll-target="#provincias-menos-contratadas">Provincias menos contratadas</a></li>
   <li><a href="#evolución-cuatrimestral-de-contrataciones" id="toc-evolución-cuatrimestral-de-contrataciones" class="nav-link" data-scroll-target="#evolución-cuatrimestral-de-contrataciones">Evolución cuatrimestral de contrataciones</a></li>
+  <li><a href="#trabajo-por-provincia" id="toc-trabajo-por-provincia" class="nav-link" data-scroll-target="#trabajo-por-provincia">Trabajo por Provincia</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -190,7 +191,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>La siguiente sección muestra la distribución de personas contratadas por cantón para las provincias con mayor y menor número total de contrataciones.</p>
 <section id="provincias-más-contratadas" class="level2">
 <h2 class="anchored" data-anchor-id="provincias-más-contratadas">Provincias más contratadas</h2>
-<div id="8946a42c" class="cell" data-execution_count="1">
+<div id="1546147c" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -285,7 +286,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="provincias-menos-contratadas" class="level2">
 <h2 class="anchored" data-anchor-id="provincias-menos-contratadas">Provincias menos contratadas</h2>
-<div id="400bfb2b" class="cell" data-execution_count="2">
+<div id="3e2a8790" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>bottom4 <span class="op">=</span> provincia_totales.tail(<span class="dv">4</span>).sort_values().index.tolist()</span>
@@ -303,7 +304,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="evolución-cuatrimestral-de-contrataciones" class="level2">
 <h2 class="anchored" data-anchor-id="evolución-cuatrimestral-de-contrataciones">Evolución cuatrimestral de contrataciones</h2>
-<div id="cbffbdf4" class="cell" data-execution_count="3">
+<div id="53531b0f" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>cuatrimestral <span class="op">=</span> (</span>
@@ -350,6 +351,76 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div>
 <figure class="figure">
 <p><img src="trabajo_files/figure-html/cell-4-output-1.png" width="950" height="470" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="trabajo-por-provincia" class="level2">
+<h2 class="anchored" data-anchor-id="trabajo-por-provincia">Trabajo por Provincia</h2>
+<div id="f6d7a98d" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>DATA_PATH <span class="op">=</span> <span class="st">"/home/juanchx/Desktop/Maestria_IA/machine learning/lab 1 data/mdt_colocados_2025agosto.csv"</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Cargar y preparar los datos</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(DATA_PATH, sep<span class="op">=</span><span class="st">";"</span>, encoding<span class="op">=</span><span class="st">"latin1"</span>).rename(</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    columns<span class="op">=</span>{</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">"A¤o"</span>: <span class="st">"Año"</span>,</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Cant¢n"</span>: <span class="st">"Cantón"</span>,</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">"N£mero de Personas"</span>: <span class="st">"Número de Personas"</span>,</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>provincia_totales <span class="op">=</span> df.groupby(<span class="st">"Provincia"</span>)[<span class="st">"Número de Personas"</span>].<span class="bu">sum</span>().sort_values(ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>TOP_N <span class="op">=</span> <span class="dv">12</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>pie_datos <span class="op">=</span> provincia_totales.reset_index().rename(columns<span class="op">=</span>{<span class="st">"Número de Personas"</span>: <span class="st">"Personas"</span>})</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>top_provincias <span class="op">=</span> pie_datos.head(TOP_N)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>resto_total <span class="op">=</span> pie_datos[<span class="st">"Personas"</span>][TOP_N:].<span class="bu">sum</span>()</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> resto_total <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    pie_data <span class="op">=</span> pd.concat(</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>        [top_provincias, pd.DataFrame({<span class="st">"Provincia"</span>: [<span class="st">"Otros"</span>], <span class="st">"Personas"</span>: [resto_total]})],</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        ignore_index<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    pie_data <span class="op">=</span> top_provincias</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _autopct(values):</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    total <span class="op">=</span> values.<span class="bu">sum</span>()</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> inner(pct):</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>        valor <span class="op">=</span> <span class="bu">int</span>(<span class="bu">round</span>(total <span class="op">*</span> pct <span class="op">/</span> <span class="fl">100.0</span>))</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="ss">f"</span><span class="sc">{</span>pct<span class="sc">:.1f}</span><span class="ss">%</span><span class="ch">\n</span><span class="sc">{</span>valor<span class="sc">:,}</span><span class="ss">"</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> inner</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">8</span>))</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>plt.pie(</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>    pie_data[<span class="st">"Personas"</span>],</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>    labels<span class="op">=</span>pie_data[<span class="st">"Provincia"</span>],</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>    autopct<span class="op">=</span>_autopct(pie_data[<span class="st">"Personas"</span>]),</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>    startangle<span class="op">=</span><span class="dv">90</span>,</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>    pctdistance<span class="op">=</span><span class="fl">0.78</span>,</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>    textprops<span class="op">=</span>{<span class="st">"fontsize"</span>: <span class="dv">9</span>},</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Participación de contrataciones por provincia"</span>, fontsize<span class="op">=</span><span class="dv">14</span>, weight<span class="op">=</span><span class="st">"bold"</span>)</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>centre_circle <span class="op">=</span> plt.Circle((<span class="dv">0</span>, <span class="dv">0</span>), <span class="fl">0.60</span>, fc<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.gcf()</span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>fig.gca().add_artist(centre_circle)</span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="trabajo_files/figure-html/cell-5-output-1.png" width="747" height="751" class="figure-img"></p>
 </figure>
 </div>
 </div>

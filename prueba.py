@@ -86,44 +86,47 @@ plot_provincias(top4, "Provincias con más contrataciones", "Top")
 plot_provincias(bottom4, "Provincias con menos contrataciones", "Bottom")
 plt.show()
 
-# Evolución cuatrimestral de contrataciones
-cuatrimestral = (
-    df.assign(Cuatrimestre=((df["Mes"] - 1) // 4) + 1)
-    .groupby(["Año", "Cuatrimestre"])["Número de Personas"]
-    .sum()
-    .reset_index()
-    .sort_values(["Año", "Cuatrimestre"])
-)
-cuatrimestral["Periodo"] = (
-    cuatrimestral["Año"].astype(str)
-    + " C"
-    + cuatrimestral["Cuatrimestre"].astype(str)
-)
 
-plt.figure(figsize=(10, 5))
-plt.plot(
-    cuatrimestral["Periodo"],
-    cuatrimestral["Número de Personas"],
-    marker="o",
-    color="#4C72B0",
-)
-plt.title("Evolución cuatrimestral de contrataciones", fontsize=14, weight="bold")
-plt.xlabel("Periodo cuatrimestral")
-plt.ylabel("Personas contratadas")
-plt.xticks(rotation=45)
 
-for etiqueta, valor in zip(
-    cuatrimestral["Periodo"], cuatrimestral["Número de Personas"]
-):
-    plt.text(
-        etiqueta,
-        valor,
-        f"{int(valor):,}",
-        ha="center",
-        va="bottom",
-        fontsize=8,
+#%%
+# Participación de contrataciones por provincia (top 8 + "Otros")
+TOP_N = 8
+pie_datos = provincia_totales.reset_index().rename(columns={"Provincia": "Provincia", "Número de Personas": "Personas"})
+top_provincias = pie_datos.head(TOP_N)
+resto_total = pie_datos["Personas"][TOP_N:].sum()
+
+if resto_total > 0:
+    pie_data = pd.concat(
+        [top_provincias, pd.DataFrame({"Provincia": ["Otros"], "Personas": [resto_total]})],
+        ignore_index=True,
     )
+else:
+    pie_data = top_provincias
 
+
+def _autopct(values):
+    total = values.sum()
+
+    def inner(pct):
+        valor = int(round(total * pct / 100.0))
+        return f"{pct:.1f}%\n{valor:,}"
+
+    return inner
+
+
+plt.figure(figsize=(8, 8))
+plt.pie(
+    pie_data["Personas"],
+    labels=pie_data["Provincia"],
+    autopct=_autopct(pie_data["Personas"]),
+    startangle=90,
+    pctdistance=0.78,
+    textprops={"fontsize": 9},
+)
+plt.title("Participación de contrataciones por provincia", fontsize=14, weight="bold")
+centre_circle = plt.Circle((0, 0), 0.60, fc="white")
+fig = plt.gcf()
+fig.gca().add_artist(centre_circle)
 plt.tight_layout()
 plt.show()
 
