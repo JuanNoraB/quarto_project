@@ -100,3 +100,48 @@ bottom4 = provincia_totales.tail(4).sort_values().index.tolist()
 plot_provincias(bottom4, "Provincias con menos contrataciones", "Bottom")
 plt.show()
 ```
+
+
+
+## Evolución cuatrimestral de contrataciones
+```{python}
+cuatrimestral = (
+    df.assign(Cuatrimestre=((df["Mes"] - 1) // 4) + 1)
+    .groupby(["Año", "Cuatrimestre"])["Número de Personas"]
+    .sum()
+    .reset_index()
+    .sort_values(["Año", "Cuatrimestre"])
+)
+cuatrimestral["Periodo"] = (
+    cuatrimestral["Año"].astype(str)
+    + " C"
+    + cuatrimestral["Cuatrimestre"].astype(str)
+)
+
+plt.figure(figsize=(10, 5))
+plt.plot(
+    cuatrimestral["Periodo"],
+    cuatrimestral["Número de Personas"],
+    marker="o",
+    color="#4C72B0",
+)
+plt.title("Evolución cuatrimestral de contrataciones", fontsize=14, weight="bold")
+plt.xlabel("Periodo cuatrimestral")
+plt.ylabel("Personas contratadas")
+plt.xticks(rotation=45)
+
+for etiqueta, valor in zip(
+    cuatrimestral["Periodo"], cuatrimestral["Número de Personas"]
+):
+    plt.text(
+        etiqueta,
+        valor,
+        f"{int(valor):,}",
+        ha="center",
+        va="bottom",
+        fontsize=8,
+    )
+
+plt.tight_layout()
+plt.show()
+```
