@@ -1,0 +1,26 @@
+---
+title: "Primer proyecto en Quarto"
+author: "Juan Brito"
+date: today
+format: html
+
+---
+# Título - 
+
+# Subtítulo - second
+```{python}
+import altair as alt
+from vega_datasets import data
+cars = data.cars()
+print(cars.head())
+```
+
+```{python}
+alt.Chart(cars).mark_point().encode(
+    x='Miles_per_Gallon',
+    y='Horsepower',
+    tooltip=['Name', 'Miles_per_Gallon', 'Horsepower', 'Origin'],
+    color='Origin'
+).interactive()
+```
+

@@ -1,0 +1,262 @@
+---
+title: "Primer proyecto en Quarto"
+subtitle: "Análisis y Modelado de Datos"
+author: "Juan Brito"
+date: today
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 3
+    code-fold: true
+    code-tools: true
+    embed-resources: true
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    colorlinks: true
+    linkcolor: blue
+    urlcolor: blue
+    citecolor: blue
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+# Introducción
+
+Este documento presenta un análisis completo de machine learning utilizando Quarto para la documentación y visualización de resultados.
+
+## Objetivos
+
+- Explorar y analizar un conjunto de datos
+- Implementar diferentes algoritmos de machine learning
+- Comparar el rendimiento de los modelos
+- Visualizar los resultados de manera clara
+
+# Configuración del Entorno
+
+```{python}
+#| label: setup
+#| echo: true
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, confusion_matrix
+import warnings
+warnings.filterwarnings('ignore')
+
+# Configuración de matplotlib
+plt.style.use('seaborn-v0_8')
+sns.set_palette("husl")
+```
+
+# Carga y Exploración de Datos
+
+```{python}
+#| label: load-data
+#| echo: true
+
+# Ejemplo con datos sintéticos
+np.random.seed(42)
+n_samples = 1000
+
+# Generar datos de ejemplo
+data = {
+    'feature_1': np.random.normal(0, 1, n_samples),
+    'feature_2': np.random.normal(0, 1, n_samples),
+    'feature_3': np.random.normal(0, 1, n_samples),
+    'target': np.random.choice([0, 1], n_samples, p=[0.6, 0.4])
+}
+
+df = pd.DataFrame(data)
+print(f"Forma del dataset: {df.shape}")
+print(f"\nPrimeras 5 filas:")
+df.head()
+```
+
+## Estadísticas Descriptivas
+
+```{python}
+#| label: describe-data
+#| echo: true
+
+# Estadísticas descriptivas
+print("Estadísticas descriptivas:")
+df.describe()
+```
+
+## Visualización de los Datos
+
+```{python}
+#| label: visualize-data
+#| echo: true
+#| fig-width: 10
+#| fig-height: 6
+
+# Crear subplots
+fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+
+# Histograma de feature_1
+axes[0, 0].hist(df['feature_1'], bins=30, alpha=0.7, color='skyblue')
+axes[0, 0].set_title('Distribución de Feature 1')
+axes[0, 0].set_xlabel('Valor')
+axes[0, 0].set_ylabel('Frecuencia')
+
+# Scatter plot feature_1 vs feature_2
+scatter = axes[0, 1].scatter(df['feature_1'], df['feature_2'], 
+                           c=df['target'], cmap='viridis', alpha=0.6)
+axes[0, 1].set_title('Feature 1 vs Feature 2')
+axes[0, 1].set_xlabel('Feature 1')
+axes[0, 1].set_ylabel('Feature 2')
+plt.colorbar(scatter, ax=axes[0, 1])
+
+# Box plot por target
+df.boxplot(column='feature_1', by='target', ax=axes[1, 0])
+axes[1, 0].set_title('Feature 1 por Target')
+axes[1, 0].set_xlabel('Target')
+
+# Correlación
+corr_matrix = df.corr()
+sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', center=0, ax=axes[1, 1])
+axes[1, 1].set_title('Matriz de Correlación')
+
+plt.tight_layout()
+plt.show()
+```
+
+# Preparación de Datos
+
+```{python}
+#| label: prepare-data
+#| echo: true
+
+# Separar características y target
+X = df[['feature_1', 'feature_2', 'feature_3']]
+y = df['target']
+
+# Dividir en conjuntos de entrenamiento y prueba
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+print(f"Conjunto de entrenamiento: {X_train.shape[0]} muestras")
+print(f"Conjunto de prueba: {X_test.shape[0]} muestras")
+print(f"Proporción de clases en entrenamiento: {y_train.value_counts(normalize=True)}")
+```
+
+# Modelado
+
+## Modelo 1: Regresión Logística
+
+```{python}
+#| label: logistic-regression
+#| echo: true
+
+# Entrenar modelo de regresión logística
+lr_model = LogisticRegression(random_state=42, max_iter=1000)
+lr_model.fit(X_train, y_train)
+
+# Predicciones
+lr_pred = lr_model.predict(X_test)
+lr_pred_proba = lr_model.predict_proba(X_test)[:, 1]
+
+print("Regresión Logística - Métricas:")
+print(classification_report(y_test, lr_pred))
+```
+
+## Modelo 2: Random Forest
+
+```{python}
+#| label: random-forest
+#| echo: true
+
+# Entrenar modelo Random Forest
+rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
+rf_model.fit(X_train, y_train)
+
+# Predicciones
+rf_pred = rf_model.predict(X_test)
+rf_pred_proba = rf_model.predict_proba(X_test)[:, 1]
+
+print("Random Forest - Métricas:")
+print(classification_report(y_test, rf_pred))
+```
+
+# Evaluación y Comparación
+
+## Matriz de Confusión
+
+```{python}
+#| label: confusion-matrices
+#| echo: true
+#| fig-width: 12
+#| fig-height: 5
+
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+# Matriz de confusión para Regresión Logística
+cm_lr = confusion_matrix(y_test, lr_pred)
+sns.heatmap(cm_lr, annot=True, fmt='d', cmap='Blues', ax=axes[0])
+axes[0].set_title('Regresión Logística')
+axes[0].set_xlabel('Predicción')
+axes[0].set_ylabel('Valor Real')
+
+# Matriz de confusión para Random Forest
+cm_rf = confusion_matrix(y_test, rf_pred)
+sns.heatmap(cm_rf, annot=True, fmt='d', cmap='Greens', ax=axes[1])
+axes[1].set_title('Random Forest')
+axes[1].set_xlabel('Predicción')
+axes[1].set_ylabel('Valor Real')
+
+plt.tight_layout()
+plt.show()
+```
+
+## Comparación de Importancia de Características
+
+```{python}
+#| label: feature-importance
+#| echo: true
+#| fig-width: 10
+#| fig-height: 6
+
+# Importancia de características para Random Forest
+feature_importance = pd.DataFrame({
+    'feature': X.columns,
+    'importance': rf_model.feature_importances_
+}).sort_values('importance', ascending=True)
+
+plt.figure(figsize=(10, 6))
+plt.barh(feature_importance['feature'], feature_importance['importance'])
+plt.title('Importancia de Características - Random Forest')
+plt.xlabel('Importancia')
+plt.tight_layout()
+plt.show()
+```
+
+# Resultados y Conclusiones
+
+## Resumen de Resultados
+
+Los modelos implementados muestran diferentes niveles de rendimiento:
+
+- **Regresión Logística**: Modelo lineal simple y rápido
+- **Random Forest**: Modelo más complejo con mejor capacidad de capturar relaciones no lineales
+
+## Próximos Pasos
+
+1. Probar otros algoritmos (SVM, XGBoost, etc.)
+2. Optimizar hiperparámetros
+3. Implementar validación cruzada
+4. Análisis de más características
+
+---
+
+*Documento generado con Quarto - {format(Sys.time(), "%Y-%m-%d %H:%M:%S")}*
