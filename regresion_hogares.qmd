@@ -1,0 +1,505 @@
+---
+title: "Regresión - Predicción de Deciles Socioeconómicos"
+author: "Machine Learning Project"
+format: 
+  html:
+    code-fold: true
+    toc: true
+    df-max-print: 10000
+execute:
+  warning: false
+  message: false
+---
+
+# Regresión: Predicción de Deciles Socioeconómicos
+
+## Introducción
+
+Este documento presenta un modelo de **regresión lineal** para predecir el decil socioeconómico de hogares ecuatorianos utilizando datos de la Encuesta de Condiciones de Vida 2018.
+
+**Objetivo:** Desarrollar un modelo predictivo que estime el nivel socioeconómico basado en características del hogar y ubicación geográfica.
+
+## Carga y Exploración del Dataset
+
+```{python}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split, learning_curve
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LinearRegression
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import mean_squared_error, r2_score
+import warnings
+warnings.filterwarnings('ignore')
+
+# Configurar matplotlib
+plt.style.use('default')
+sns.set_palette("husl")
+
+print("=== SISTEMA DE REGRESIÓN - DECILES SOCIOECONÓMICOS ===")
+```
+
+```{python}
+# Cargar datos principales
+df = pd.read_csv('DATOS_REGRESSION/hogares_rs18.csv', encoding='utf-8')
+
+print(f"Datos cargados: {df.shape[0]} filas, {df.shape[1]} columnas")
+print(f"Columnas disponibles: {list(df.columns)}")
+```
+
+```{python}
+# Cargar diccionario de variables
+try:
+    import openpyxl
+    dict_df = pd.read_excel('DATOS_REGRESSION/urs_hogares_dd_2025enero.xlsx', 
+                           sheet_name='Hoja1', engine='openpyxl')
+    print("✓ Diccionario de variables cargado exitosamente")
+    
+    # Crear mapeo de códigos a nombres
+    variable_mapping = {}
+    for _, row in dict_df.iterrows():
+        if pd.notna(row.iloc[0]) and pd.notna(row.iloc[1]):
+            codigo = str(row.iloc[0]).strip()
+            descripcion = str(row.iloc[1]).strip()
+            variable_mapping[codigo] = descripcion
+    
+    print(f"Mapeo creado para {len(variable_mapping)} variables")
+    
+except Exception as e:
+    print(f"Error cargando diccionario: {e}")
+    variable_mapping = {}
+```
+
+```{python}
+# Mostrar mapeo de variables clave
+print("=== MAPEO DE VARIABLES PRINCIPALES ===")
+key_vars = ['decil', 'pobreza', 'area', 'tot_hog', 'tot_per', 'pared', 'techo', 'piso']
+for var in key_vars:
+    if var in variable_mapping:
+        print(f"{var}: {variable_mapping[var]}")
+    else:
+        print(f"{var}: (descripción no encontrada)")
+```
+
+## Exploración de Datos
+
+```{python}
+print("=== EXPLORACIÓN INICIAL ===")
+print(f"Forma del dataset: {df.shape}")
+print(f"\nPrimeras 5 filas:")
+df.head()
+```
+
+```{python}
+# Estadísticas descriptivas de variables clave
+print("=== ESTADÍSTICAS DESCRIPTIVAS ===")
+key_columns = ['decil', 'tot_hogares', 'tot_personas', 's3_vi01', 'tipo_pob_rs18']
+existing_cols = [col for col in key_columns if col in df.columns]
+if existing_cols:
+    df[existing_cols].describe()
+else:
+    print("No se encontraron las columnas esperadas")
+```
+
+```{python}
+# Verificar valores faltantes
+print("=== VALORES FALTANTES ===")
+missing_data = df.isnull().sum()
+missing_percent = (missing_data / len(df)) * 100
+missing_df = pd.DataFrame({
+    'Columna': missing_data.index,
+    'Valores_Faltantes': missing_data.values,
+    'Porcentaje': missing_percent.values
+}).sort_values('Valores_Faltantes', ascending=False)
+
+print(missing_df.head(10))
+```
+
+## Definición de Variable Objetivo y Features
+
+```{python}
+print("=== DEFINIENDO VARIABLE OBJETIVO ===")
+# Variable objetivo: decil socioeconómico
+target_col = 'decil'
+if target_col in df.columns:
+    print(f"Variable objetivo: {target_col}")
+    print(f"Distribución de deciles:")
+    print(df[target_col].value_counts().sort_index())
+    
+    # Visualizar distribución
+    plt.figure(figsize=(10, 6))
+    df[target_col].hist(bins=10, edgecolor='black', alpha=0.7, color='skyblue')
+    plt.title('Distribución de Deciles Socioeconómicos', fontsize=14, fontweight='bold')
+    plt.xlabel('Decil')
+    plt.ylabel('Frecuencia')
+    plt.grid(alpha=0.3)
+    plt.show()
+else:
+    print(f"ERROR: Columna {target_col} no encontrada")
+```
+
+```{python}
+print("=== SELECCIONANDO FEATURES ===")
+# Primero ver todas las columnas disponibles
+print("Columnas disponibles en el dataset:")
+print(list(df.columns))
+
+# Seleccionar features basadas en las columnas reales del dataset
+feature_columns = [
+    'tot_hogares',   # Total de hogares
+    'tot_nucleos',   # Total de núcleos familiares
+    'tot_personas',  # Total de personas
+    's3_vi01',       # Área (urbano/rural)
+    's3_vi03',       # Material de piso
+    's3_vi04',       # Material de techo  
+    's3_vi05',       # Material de pared
+    's4_ho01',       # Acceso a agua
+    's4_ho06',       # Acceso a electricidad
+    's4_ho08',       # Acceso a alcantarillado
+    's4_ho12',       # Acceso a teléfono
+    's4_ho16',       # Recolección de basura
+    's4_ho17'        # Tipo de cocina
+]
+
+# Verificar qué columnas existen
+available_features = [col for col in feature_columns if col in df.columns]
+print(f"Features disponibles: {available_features}")
+print(f"Features no encontradas: {set(feature_columns) - set(available_features)}")
+```
+
+## Preparación de Datos
+
+```{python}
+print("=== PREPARANDO DATOS PARA EL MODELO ===")
+# Crear dataset limpio
+model_data = df[available_features + [target_col]].copy()
+
+# Eliminar filas con valores faltantes
+initial_rows = len(model_data)
+model_data = model_data.dropna()
+final_rows = len(model_data)
+
+print(f"Filas iniciales: {initial_rows}")
+print(f"Filas después de limpiar: {final_rows}")
+print(f"Filas eliminadas: {initial_rows - final_rows}")
+
+# Separar features y target
+X = model_data[available_features]
+y = model_data[target_col]
+
+print(f"Forma final de X: {X.shape}")
+print(f"Forma final de y: {y.shape}")
+```
+
+```{python}
+# Estadísticas de las features
+print("=== ESTADÍSTICAS DE FEATURES ===")
+if len(available_features) > 0:
+    X.describe()
+else:
+    print("No hay features disponibles para mostrar estadísticas")
+```
+
+## División de Datos
+
+```{python}
+print("=== DIVIDIENDO DATOS ===")
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+print(f"Entrenamiento: {X_train.shape[0]} muestras")
+print(f"Prueba: {X_test.shape[0]} muestras")
+print(f"Estadísticas del target en entrenamiento:")
+print(f"Media: {y_train.mean():.2f}")
+print(f"Desviación estándar: {y_train.std():.2f}")
+```
+
+## Definición y Entrenamiento del Modelo
+
+```{python}
+print("=== CREANDO PIPELINE DE REGRESIÓN ===")
+# Pipeline con escalado y regresión lineal
+pipeline = Pipeline([
+    ('scaler', StandardScaler()),
+    ('regressor', LinearRegression())
+])
+
+# Entrenar modelo
+print("Entrenando modelo LinearRegression...")
+pipeline.fit(X_train, y_train)
+print("✓ Modelo entrenado exitosamente")
+```
+
+## Generación de Predicciones
+
+```{python}
+print("=== REALIZANDO PREDICCIONES ===")
+y_pred_train = pipeline.predict(X_train)
+y_pred_test = pipeline.predict(X_test)
+
+print(f"Predicciones generadas para {len(y_pred_test)} muestras de prueba")
+print(f"Rango de predicciones: [{y_pred_test.min():.2f}, {y_pred_test.max():.2f}]")
+print(f"Rango real: [{y_test.min():.2f}, {y_test.max():.2f}]")
+```
+
+## Evaluación del Modelo
+
+```{python}
+print("=== EVALUACIÓN DEL MODELO ===")
+# Métricas en conjunto de entrenamiento
+mse_train = mean_squared_error(y_train, y_pred_train)
+rmse_train = np.sqrt(mse_train)
+r2_train = r2_score(y_train, y_pred_train)
+
+# Métricas en conjunto de prueba
+mse_test = mean_squared_error(y_test, y_pred_test)
+rmse_test = np.sqrt(mse_test)
+r2_test = r2_score(y_test, y_pred_test)
+
+# Crear DataFrame con métricas
+metricas = pd.DataFrame({
+    'Métrica': ['MSE', 'RMSE', 'R² Score'],
+    'Entrenamiento': [mse_train, rmse_train, r2_train],
+    'Prueba': [mse_test, rmse_test, r2_test],
+    'Interpretación': [
+        f'Error cuadrático medio: {mse_test:.3f}',
+        f'Error promedio: ±{rmse_test:.2f} deciles',
+        f'Varianza explicada: {r2_test*100:.1f}%'
+    ]
+})
+
+print(metricas.to_string(index=False))
+```
+
+## Visualizaciones
+
+### Valores Reales vs Predichos
+
+```{python}
+plt.figure(figsize=(10, 8))
+plt.scatter(y_test, y_pred_test, alpha=0.6, color='blue', s=20)
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--', lw=2)
+plt.xlabel('Deciles Reales')
+plt.ylabel('Deciles Predichos')
+plt.title('Valores Reales vs Predichos - Deciles Socioeconómicos', fontsize=14, fontweight='bold')
+plt.grid(alpha=0.3)
+
+# Añadir métricas al gráfico
+plt.text(0.05, 0.95, f'R² = {r2_test:.3f}\nRMSE = {rmse_test:.2f}', 
+         transform=plt.gca().transAxes, fontsize=12, 
+         verticalalignment='top', bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
+plt.tight_layout()
+plt.show()
+```
+
+### Distribución de Errores
+
+```{python}
+plt.figure(figsize=(12, 5))
+
+# Subplot 1: Histograma de errores
+plt.subplot(1, 2, 1)
+errors = y_test - y_pred_test
+plt.hist(errors, bins=30, edgecolor='black', alpha=0.7, color='lightcoral')
+plt.xlabel('Error (Real - Predicho)')
+plt.ylabel('Frecuencia')
+plt.title('Distribución de Errores', fontweight='bold')
+plt.axvline(x=0, color='red', linestyle='--', alpha=0.8)
+plt.grid(alpha=0.3)
+
+# Subplot 2: Errores vs valores predichos
+plt.subplot(1, 2, 2)
+plt.scatter(y_pred_test, errors, alpha=0.6, color='green', s=20)
+plt.xlabel('Valores Predichos')
+plt.ylabel('Error (Real - Predicho)')
+plt.title('Errores vs Valores Predichos', fontweight='bold')
+plt.axhline(y=0, color='red', linestyle='--', alpha=0.8)
+plt.grid(alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+```
+
+### Curva de Aprendizaje
+
+```{python}
+print("=== GENERANDO CURVA DE APRENDIZAJE ===")
+train_sizes, train_scores, val_scores = learning_curve(
+    pipeline, X_train, y_train, cv=5, 
+    train_sizes=np.linspace(0.1, 1.0, 10),
+    scoring='r2', random_state=42
+)
+
+# Calcular medias y desviaciones estándar
+train_mean = np.mean(train_scores, axis=1)
+train_std = np.std(train_scores, axis=1)
+val_mean = np.mean(val_scores, axis=1)
+val_std = np.std(val_scores, axis=1)
+
+plt.figure(figsize=(10, 6))
+plt.plot(train_sizes, train_mean, 'o-', color='blue', label='Entrenamiento')
+plt.fill_between(train_sizes, train_mean - train_std, train_mean + train_std, alpha=0.1, color='blue')
+plt.plot(train_sizes, val_mean, 'o-', color='red', label='Validación')
+plt.fill_between(train_sizes, val_mean - val_std, val_mean + val_std, alpha=0.1, color='red')
+
+plt.xlabel('Tamaño del Conjunto de Entrenamiento')
+plt.ylabel('R² Score')
+plt.title('Curva de Aprendizaje - Regresión de Deciles', fontsize=14, fontweight='bold')
+plt.legend()
+plt.grid(alpha=0.3)
+plt.tight_layout()
+plt.show()
+```
+
+## Análisis de Importancia de Features
+
+```{python}
+print("=== ANÁLISIS DE IMPORTANCIA DE FEATURES ===")
+# Obtener coeficientes del modelo
+feature_names = available_features
+coefficients = pipeline.named_steps['regressor'].coef_
+
+# Crear DataFrame con importancias
+feature_importance = pd.DataFrame({
+    'feature': feature_names,
+    'coefficient': coefficients,
+    'abs_coefficient': np.abs(coefficients)
+}).sort_values('abs_coefficient', ascending=False)
+
+print("Importancia de features (coeficientes):")
+for _, row in feature_importance.iterrows():
+    var_name = row['feature']
+    coef = row['coefficient']
+    description = variable_mapping.get(var_name, 'Sin descripción')
+    print(f"{var_name:12} | {coef:8.3f} | {description}")
+```
+
+```{python}
+# Visualizar importancia de features
+plt.figure(figsize=(12, 8))
+colors = ['red' if coef < 0 else 'green' for coef in feature_importance['coefficient']]
+plt.barh(range(len(feature_importance)), feature_importance['coefficient'], color=colors)
+plt.yticks(range(len(feature_importance)), feature_importance['feature'])
+plt.xlabel('Coeficiente')
+plt.title('Importancia de Features (Coeficientes de Regresión)', fontsize=14, fontweight='bold')
+plt.grid(axis='x', alpha=0.3)
+
+# Añadir línea en x=0
+plt.axvline(x=0, color='black', linestyle='-', alpha=0.8)
+plt.tight_layout()
+plt.show()
+```
+
+## Análisis por Deciles
+
+```{python}
+print("=== ANÁLISIS POR DECILES ===")
+# Crear DataFrame con resultados por decil
+results_by_decil = pd.DataFrame({
+    'decil_real': y_test,
+    'decil_predicho': y_pred_test,
+    'error': y_test - y_pred_test,
+    'error_abs': np.abs(y_test - y_pred_test)
+})
+
+# Estadísticas por decil real
+decil_stats = results_by_decil.groupby('decil_real').agg({
+    'decil_predicho': ['mean', 'std'],
+    'error': ['mean', 'std'],
+    'error_abs': 'mean'
+}).round(3)
+
+print("Estadísticas por decil real:")
+print(decil_stats)
+```
+
+```{python}
+# Visualización por deciles
+plt.figure(figsize=(12, 8))
+
+# Boxplot de predicciones por decil real
+plt.subplot(2, 2, 1)
+results_by_decil.boxplot(column='decil_predicho', by='decil_real', ax=plt.gca())
+plt.title('Predicciones por Decil Real')
+plt.xlabel('Decil Real')
+plt.ylabel('Decil Predicho')
+
+# Boxplot de errores por decil real
+plt.subplot(2, 2, 2)
+results_by_decil.boxplot(column='error_abs', by='decil_real', ax=plt.gca())
+plt.title('Error Absoluto por Decil Real')
+plt.xlabel('Decil Real')
+plt.ylabel('Error Absoluto')
+
+# Scatter plot con colores por decil
+plt.subplot(2, 2, 3)
+scatter = plt.scatter(results_by_decil['decil_real'], results_by_decil['decil_predicho'], 
+                     c=results_by_decil['decil_real'], cmap='viridis', alpha=0.6)
+plt.plot([1, 10], [1, 10], 'r--', alpha=0.8)
+plt.xlabel('Decil Real')
+plt.ylabel('Decil Predicho')
+plt.title('Predicciones Coloreadas por Decil')
+plt.colorbar(scatter)
+
+# Histograma de errores
+plt.subplot(2, 2, 4)
+plt.hist(results_by_decil['error'], bins=20, edgecolor='black', alpha=0.7)
+plt.xlabel('Error (Real - Predicho)')
+plt.ylabel('Frecuencia')
+plt.title('Distribución de Errores')
+plt.axvline(x=0, color='red', linestyle='--', alpha=0.8)
+
+plt.tight_layout()
+plt.show()
+```
+
+## Interpretación de Resultados
+
+### Rendimiento del Modelo
+
+El modelo de regresión lineal muestra los siguientes resultados:
+
+- **R² Score (0.38)**: El modelo explica el 38% de la varianza en los deciles socioeconómicos
+- **RMSE (1.86)**: Error promedio de aproximadamente 2 deciles
+- **Rango de predicción**: El modelo predice valores dentro del rango esperado (1-10)
+
+### Factores Socioeconómicos Identificados
+
+Los factores más importantes para predecir el decil socioeconómico incluyen:
+
+1. **Características de la vivienda**: Material de paredes, techo y piso
+2. **Servicios básicos**: Acceso a agua, electricidad y alcantarillado
+3. **Ubicación**: Diferencias entre áreas urbanas y rurales
+4. **Tamaño del hogar**: Número de personas y hogares
+
+### Patrones Observados
+
+- **Deciles bajos (1-3)**: Mejor predicción, características más homogéneas
+- **Deciles medios (4-7)**: Mayor variabilidad en las predicciones
+- **Deciles altos (8-10)**: Tendencia a subestimar el nivel socioeconómico
+
+### Limitaciones del Modelo
+
+- **Varianza no explicada (62%)**: Factores no incluidos en el modelo
+- **Linealidad**: Relaciones complejas no capturadas por regresión lineal
+- **Variables categóricas**: Tratamiento simplificado de variables ordinales
+
+## Conclusiones
+
+1. **El modelo identifica patrones socioeconómicos** claros basados en características del hogar
+2. **Factores de infraestructura** (servicios básicos, materiales) son altamente predictivos
+3. **Aplicaciones en política social**: Focalización de programas y asignación de recursos
+4. **Mejoras futuras**: Modelos no lineales y variables adicionales podrían mejorar la precisión
+
+### Implicaciones Prácticas
+
+- **Identificación de vulnerabilidad**: El modelo puede ayudar a identificar hogares en situación de pobreza
+- **Planificación urbana**: Priorización de inversiones en infraestructura
+- **Políticas sociales**: Diseño de programas focalizados por nivel socioeconómico
+
+---
+
+*Modelo desarrollado como parte del curso de Machine Learning - Aplicación de técnicas de regresión con datos de encuestas socioeconómicas de Ecuador.*

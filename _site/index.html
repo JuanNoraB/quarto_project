@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Juan Brito">
-<meta name="dcterms.date" content="2025-09-27">
+<meta name="dcterms.date" content="2025-10-04">
 
 <title>Primer proyecto en Quarto – Machine Learning</title>
 <style>
@@ -3910,6 +3910,18 @@ var requirejs,require,define;(function(global,setTimeout){var req,s,head,baseEle
     <a class="nav-link" href="./eda.html"> 
 <span class="menu-text">EDA</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./trabajo.html"> 
+<span class="menu-text">Trabajo_Ecuador</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./clasificacion_binaria.html"> 
+<span class="menu-text">Clasificación Binaria</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./regresion_hogares.html"> 
+<span class="menu-text">Regresión Hogares</span></a>
+  </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -3957,7 +3969,7 @@ var requirejs,require,define;(function(global,setTimeout){var req,s,head,baseEle
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">September 27, 2025</p>
+      <p class="date">October 4, 2025</p>
     </div>
   </div>
   
@@ -3974,7 +3986,7 @@ var requirejs,require,define;(function(global,setTimeout){var req,s,head,baseEle
 </section>
 <section id="subtítulo---second" class="level1">
 <h1>Subtítulo - second</h1>
-<div id="21f8349d" class="cell" data-execution_count="1">
+<div id="813c28bc" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> altair <span class="im">as</span> alt</span>
@@ -3998,7 +4010,7 @@ var requirejs,require,define;(function(global,setTimeout){var req,s,head,baseEle
 4       140.0           3449          10.5 1970-01-01    USA  </code></pre>
 </div>
 </div>
-<div id="0a71b64c" class="cell" data-execution_count="2">
+<div id="f71c35de" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>alt.Chart(cars).mark_point().encode(</span>
@@ -4010,13 +4022,13 @@ var requirejs,require,define;(function(global,setTimeout){var req,s,head,baseEle
 </details>
 <div class="cell-output cell-output-display" data-execution_count="2">
 
-<div id="altair-viz-4352438f7ca94731b390338c0155ea53"></div>
+<div id="altair-viz-8934dafaf06a49d68e69441acb9399a6"></div>
 <script type="text/javascript">
   var VEGA_DEBUG = (typeof VEGA_DEBUG == "undefined") ? {} : VEGA_DEBUG;
   (function(spec, embedOpt){
     let outputDiv = document.currentScript.previousElementSibling;
-    if (outputDiv.id !== "altair-viz-4352438f7ca94731b390338c0155ea53") {
-      outputDiv = document.getElementById("altair-viz-4352438f7ca94731b390338c0155ea53");
+    if (outputDiv.id !== "altair-viz-8934dafaf06a49d68e69441acb9399a6") {
+      outputDiv = document.getElementById("altair-viz-8934dafaf06a49d68e69441acb9399a6");
     }
     const paths = {
       "vega": "https://cdn.jsdelivr.net/npm//vega@5?noext",
@@ -4068,7 +4080,7 @@ var requirejs,require,define;(function(global,setTimeout){var req,s,head,baseEle
 </div>
 <section id="visualisacion-scatter-plot-with-shape-and-color" class="level3">
 <h3 class="anchored" data-anchor-id="visualisacion-scatter-plot-with-shape-and-color">Visualisacion scatter plot with shape and color</h3>
-<div id="6af4f024" class="cell" data-execution_count="3">
+<div id="ef184b38" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>alt.Chart(cars).mark_point().encode(</span>
@@ -4081,13 +4093,13 @@ var requirejs,require,define;(function(global,setTimeout){var req,s,head,baseEle
 </details>
 <div class="cell-output cell-output-display" data-execution_count="3">
 
-<div id="altair-viz-f545e9d671c2490b9ae6a81b5648216f"></div>
+<div id="altair-viz-6e43ce9b316d43d890329db67107b9fb"></div>
 <script type="text/javascript">
   var VEGA_DEBUG = (typeof VEGA_DEBUG == "undefined") ? {} : VEGA_DEBUG;
   (function(spec, embedOpt){
     let outputDiv = document.currentScript.previousElementSibling;
-    if (outputDiv.id !== "altair-viz-f545e9d671c2490b9ae6a81b5648216f") {
-      outputDiv = document.getElementById("altair-viz-f545e9d671c2490b9ae6a81b5648216f");
+    if (outputDiv.id !== "altair-viz-6e43ce9b316d43d890329db67107b9fb") {
+      outputDiv = document.getElementById("altair-viz-6e43ce9b316d43d890329db67107b9fb");
     }
     const paths = {
       "vega": "https://cdn.jsdelivr.net/npm//vega@5?noext",
@@ -4142,7 +4154,7 @@ var requirejs,require,define;(function(global,setTimeout){var req,s,head,baseEle
 <h3 class="anchored" data-anchor-id="agregaciones">Agregaciones</h3>
 <p>Grafica de barras</p>
 <p>Number de observaciones</p>
-<div id="374d8918" class="cell" data-execution_count="4">
+<div id="62db6ec4" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>alt.Chart(cars).mark_bar().encode(</span>
@@ -4152,13 +4164,13 @@ var requirejs,require,define;(function(global,setTimeout){var req,s,head,baseEle
 </details>
 <div class="cell-output cell-output-display" data-execution_count="4">
 
-<div id="altair-viz-a95213399968498096e13870b5803f78"></div>
+<div id="altair-viz-e01f89ddd4324856803ffcc504545b20"></div>
 <script type="text/javascript">
   var VEGA_DEBUG = (typeof VEGA_DEBUG == "undefined") ? {} : VEGA_DEBUG;
   (function(spec, embedOpt){
     let outputDiv = document.currentScript.previousElementSibling;
-    if (outputDiv.id !== "altair-viz-a95213399968498096e13870b5803f78") {
-      outputDiv = document.getElementById("altair-viz-a95213399968498096e13870b5803f78");
+    if (outputDiv.id !== "altair-viz-e01f89ddd4324856803ffcc504545b20") {
+      outputDiv = document.getElementById("altair-viz-e01f89ddd4324856803ffcc504545b20");
     }
     const paths = {
       "vega": "https://cdn.jsdelivr.net/npm//vega@5?noext",
@@ -4209,7 +4221,7 @@ var requirejs,require,define;(function(global,setTimeout){var req,s,head,baseEle
 </div>
 </div>
 <p>‘Mean()’ de cada uno de los orgienes</p>
-<div id="567bd2a9" class="cell" data-execution_count="5">
+<div id="5f2f0bd9" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>alt.Chart(cars).mark_bar().encode(</span>
@@ -4220,13 +4232,13 @@ var requirejs,require,define;(function(global,setTimeout){var req,s,head,baseEle
 </details>
 <div class="cell-output cell-output-display" data-execution_count="5">
 
-<div id="altair-viz-f8270d9c6a8b455791f4c4f60d6e7138"></div>
+<div id="altair-viz-a8ad9298632444e292ed1114c40d7bba"></div>
 <script type="text/javascript">
   var VEGA_DEBUG = (typeof VEGA_DEBUG == "undefined") ? {} : VEGA_DEBUG;
   (function(spec, embedOpt){
     let outputDiv = document.currentScript.previousElementSibling;
-    if (outputDiv.id !== "altair-viz-f8270d9c6a8b455791f4c4f60d6e7138") {
-      outputDiv = document.getElementById("altair-viz-f8270d9c6a8b455791f4c4f60d6e7138");
+    if (outputDiv.id !== "altair-viz-a8ad9298632444e292ed1114c40d7bba") {
+      outputDiv = document.getElementById("altair-viz-a8ad9298632444e292ed1114c40d7bba");
     }
     const paths = {
       "vega": "https://cdn.jsdelivr.net/npm//vega@5?noext",
@@ -4277,7 +4289,7 @@ var requirejs,require,define;(function(global,setTimeout){var req,s,head,baseEle
 </div>
 </div>
 <p>Grafico lineal</p>
-<div id="cd1fa50c" class="cell" data-execution_count="6">
+<div id="6bdf0826" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>alt.Chart(cars).mark_line(point<span class="op">=</span><span class="va">True</span>).encode(</span>
@@ -4288,13 +4300,13 @@ var requirejs,require,define;(function(global,setTimeout){var req,s,head,baseEle
 </details>
 <div class="cell-output cell-output-display" data-execution_count="6">
 
-<div id="altair-viz-cf90c7349dab45dc96b90400088f8fc5"></div>
+<div id="altair-viz-a7115b0878964b078116932c423b861e"></div>
 <script type="text/javascript">
   var VEGA_DEBUG = (typeof VEGA_DEBUG == "undefined") ? {} : VEGA_DEBUG;
   (function(spec, embedOpt){
     let outputDiv = document.currentScript.previousElementSibling;
-    if (outputDiv.id !== "altair-viz-cf90c7349dab45dc96b90400088f8fc5") {
-      outputDiv = document.getElementById("altair-viz-cf90c7349dab45dc96b90400088f8fc5");
+    if (outputDiv.id !== "altair-viz-a7115b0878964b078116932c423b861e") {
+      outputDiv = document.getElementById("altair-viz-a7115b0878964b078116932c423b861e");
     }
     const paths = {
       "vega": "https://cdn.jsdelivr.net/npm//vega@5?noext",

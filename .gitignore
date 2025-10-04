@@ -1,3 +1,8 @@
 networking.txt
 /.quarto/
 **/*.quarto_ipynb
+
+# Data (carpetas en la raíz del repo)
+DATOS_CLASIFICACION_BINARIA/*.{csv,ods,xlsx,parquet}
+DATOS_REGRESSION/*.{csv,ods,xlsx,parquet}
+.~lock.*#

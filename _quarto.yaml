@@ -1,6 +1,5 @@
 project:
   type: website
-  output-dir: docs  # Cambiar de _site a docs
  
 website:
   title: "Machine Learning"
@@ -12,6 +11,10 @@ website:
         text: EDA
       - href: trabajo.qmd
         text: Trabajo_Ecuador
+      - href: clasificacion_binaria.qmd
+        text: Clasificación Binaria
+      - href: regresion_hogares.qmd
+        text: Regresión Hogares
  
 format:
   html:
@@ -20,3 +23,4 @@ format:
     code-fold: true
     fig-align: center
     df-print: paged
+    df-max-print: 10000
