@@ -428,13 +428,14 @@ for _, row in feature_importance.head(15).iterrows():
 ```
 
 ```{python}
-# Visualizar importancia de features
+# Visualizar importancia de features (solo top 15)
 plt.figure(figsize=(12, 8))
-colors = ['red' if coef < 0 else 'green' for coef in feature_importance['coefficient']]
-plt.barh(range(len(feature_importance)), feature_importance['coefficient'], color=colors)
-plt.yticks(range(len(feature_importance)), feature_importance['feature'])
+top_features = feature_importance.head(15)  # Solo las 15 más importantes
+colors = ['red' if coef < 0 else 'green' for coef in top_features['coefficient']]
+plt.barh(range(len(top_features)), top_features['coefficient'], color=colors)
+plt.yticks(range(len(top_features)), top_features['feature'])
 plt.xlabel('Coeficiente')
-plt.title('Importancia de Features (Coeficientes de Regresión)', fontsize=14, fontweight='bold')
+plt.title('Top 15 Features Más Importantes (Coeficientes de Regresión)', fontsize=14, fontweight='bold')
 plt.grid(axis='x', alpha=0.3)
 
 # Añadir línea en x=0
