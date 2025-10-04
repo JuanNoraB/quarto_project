@@ -190,7 +190,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#rendimiento-del-modelo" id="toc-rendimiento-del-modelo" class="nav-link" data-scroll-target="#rendimiento-del-modelo">Rendimiento del Modelo</a></li>
   <li><a href="#factores-socioeconómicos-identificados" id="toc-factores-socioeconómicos-identificados" class="nav-link" data-scroll-target="#factores-socioeconómicos-identificados">Factores Socioeconómicos Identificados</a></li>
   <li><a href="#patrones-observados" id="toc-patrones-observados" class="nav-link" data-scroll-target="#patrones-observados">Patrones Observados</a></li>
-  <li><a href="#limitaciones-del-modelo" id="toc-limitaciones-del-modelo" class="nav-link" data-scroll-target="#limitaciones-del-modelo">Limitaciones del Modelo</a></li>
+  <li><a href="#limitaciones-y-consideraciones-del-modelo" id="toc-limitaciones-y-consideraciones-del-modelo" class="nav-link" data-scroll-target="#limitaciones-y-consideraciones-del-modelo">Limitaciones y Consideraciones del Modelo</a></li>
   </ul></li>
   <li><a href="#conclusiones" id="toc-conclusiones" class="nav-link" data-scroll-target="#conclusiones">Conclusiones</a>
   <ul class="collapse">
@@ -237,7 +237,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="carga-y-exploración-del-dataset" class="level2">
 <h2 class="anchored" data-anchor-id="carga-y-exploración-del-dataset">Carga y Exploración del Dataset</h2>
-<div id="e588fd5a" class="cell" data-execution_count="1">
+<div id="1373eb32" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -262,7 +262,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code>=== SISTEMA DE REGRESIÓN - DECILES SOCIOECONÓMICOS ===</code></pre>
 </div>
 </div>
-<div id="a73d9794" class="cell" data-execution_count="2">
+<div id="84453052" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Cargar datos principales</span></span>
@@ -276,68 +276,63 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 Columnas disponibles: ['s1_id06_cod', 's1_id06_des', 's1_id05_cod', 's1_id05_des', 's1_id04_cod', 's1_id04_des', 's1_id03', 's3_vi02', 's3_vi05_est', 's3_vi04_est', 's3_vi03_est', 's3_vi05', 's3_vi04', 's3_vi03', 's3_vi01', 's4_ho08', 's4_ho17', 's4_ho16', 's4_ho06', 's4_ho01', 's4_ho19', 's4_ho12', 's4_ho21', 's4_ho22', 'decil', 'tipo_pob_rs18', 'tot_hogares', 'tot_nucleos', 'tot_personas']</code></pre>
 </div>
 </div>
-<div id="f2f98305" class="cell" data-execution_count="3">
+<div id="0de2e59c" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Cargar diccionario de variables</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="im">import</span> openpyxl</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    dict_df <span class="op">=</span> pd.read_excel(<span class="st">'DATOS_REGRESSION/urs_hogares_dd_2025enero.xlsx'</span>, </span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>                           sheet_name<span class="op">=</span><span class="st">'Hoja1'</span>, engine<span class="op">=</span><span class="st">'openpyxl'</span>)</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"✓ Diccionario de variables cargado exitosamente"</span>)</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Crear mapeo de códigos a nombres</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    variable_mapping <span class="op">=</span> {}</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _, row <span class="kw">in</span> dict_df.iterrows():</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> pd.notna(row.iloc[<span class="dv">0</span>]) <span class="kw">and</span> pd.notna(row.iloc[<span class="dv">1</span>]):</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>            codigo <span class="op">=</span> <span class="bu">str</span>(row.iloc[<span class="dv">0</span>]).strip()</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>            descripcion <span class="op">=</span> <span class="bu">str</span>(row.iloc[<span class="dv">1</span>]).strip()</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>            variable_mapping[codigo] <span class="op">=</span> descripcion</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Mapeo creado para </span><span class="sc">{</span><span class="bu">len</span>(variable_mapping)<span class="sc">}</span><span class="ss"> variables"</span>)</span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Error cargando diccionario: </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    variable_mapping <span class="op">=</span> {}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Diccionario de variables conocidas</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>variable_mapping <span class="op">=</span> {</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'decil'</span>: <span class="st">'Decil socioeconómico del hogar (1=más pobre, 10=más rico)'</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'tipo_pob_rs18'</span>: <span class="st">'Tipo de pobreza del hogar'</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'tot_hogares'</span>: <span class="st">'Total de hogares en el área'</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'tot_nucleos'</span>: <span class="st">'Total de núcleos familiares'</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'tot_personas'</span>: <span class="st">'Total de personas en el hogar'</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s1_id03'</span>: <span class="st">'Código de área (1=Urbano, 0=Rural)'</span>,</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s3_vi01'</span>: <span class="st">'Tipo de vivienda'</span>,</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s3_vi03'</span>: <span class="st">'Material predominante del piso'</span>,</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s3_vi04'</span>: <span class="st">'Material predominante del techo'</span>,</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s3_vi05'</span>: <span class="st">'Material predominante de las paredes'</span>,</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s4_ho01'</span>: <span class="st">'Procedencia principal del agua'</span>,</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s4_ho06'</span>: <span class="st">'Tipo de servicio eléctrico'</span>,</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s4_ho08'</span>: <span class="st">'Tipo de servicio higiénico'</span>,</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s4_ho12'</span>: <span class="st">'Servicio telefónico convencional'</span>,</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s4_ho16'</span>: <span class="st">'Eliminación de la basura'</span>,</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s4_ho17'</span>: <span class="st">'Combustible para cocinar'</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== DICCIONARIO DE VARIABLES ==="</span>)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> var, desc <span class="kw">in</span> variable_mapping.items():</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>var<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>desc<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Error cargando diccionario: Worksheet named 'Hoja1' not found</code></pre>
-</div>
-</div>
-<div id="0b6127ed" class="cell" data-execution_count="4">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Mostrar mapeo de variables clave</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== MAPEO DE VARIABLES PRINCIPALES ==="</span>)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>key_vars <span class="op">=</span> [<span class="st">'decil'</span>, <span class="st">'pobreza'</span>, <span class="st">'area'</span>, <span class="st">'tot_hog'</span>, <span class="st">'tot_per'</span>, <span class="st">'pared'</span>, <span class="st">'techo'</span>, <span class="st">'piso'</span>]</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> var <span class="kw">in</span> key_vars:</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> var <span class="kw">in</span> variable_mapping:</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>var<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>variable_mapping[var]<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>var<span class="sc">}</span><span class="ss">: (descripción no encontrada)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>=== MAPEO DE VARIABLES PRINCIPALES ===
-decil: (descripción no encontrada)
-pobreza: (descripción no encontrada)
-area: (descripción no encontrada)
-tot_hog: (descripción no encontrada)
-tot_per: (descripción no encontrada)
-pared: (descripción no encontrada)
-techo: (descripción no encontrada)
-piso: (descripción no encontrada)</code></pre>
+<pre><code>=== DICCIONARIO DE VARIABLES ===
+decil: Decil socioeconómico del hogar (1=más pobre, 10=más rico)
+tipo_pob_rs18: Tipo de pobreza del hogar
+tot_hogares: Total de hogares en el área
+tot_nucleos: Total de núcleos familiares
+tot_personas: Total de personas en el hogar
+s1_id03: Código de área (1=Urbano, 0=Rural)
+s3_vi01: Tipo de vivienda
+s3_vi03: Material predominante del piso
+s3_vi04: Material predominante del techo
+s3_vi05: Material predominante de las paredes
+s4_ho01: Procedencia principal del agua
+s4_ho06: Tipo de servicio eléctrico
+s4_ho08: Tipo de servicio higiénico
+s4_ho12: Servicio telefónico convencional
+s4_ho16: Eliminación de la basura
+s4_ho17: Combustible para cocinar</code></pre>
 </div>
 </div>
 </section>
 <section id="exploración-de-datos" class="level2">
 <h2 class="anchored" data-anchor-id="exploración-de-datos">Exploración de Datos</h2>
-<div id="27ecae36" class="cell" data-execution_count="5">
+<div id="e022d550" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== EXPLORACIÓN INICIAL ==="</span>)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Forma del dataset: </span><span class="sc">{</span>df<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Primeras 5 filas:"</span>)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>df.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== EXPLORACIÓN INICIAL ==="</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Forma del dataset: </span><span class="sc">{</span>df<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Primeras 5 filas:"</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>df.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>=== EXPLORACIÓN INICIAL ===
@@ -345,7 +340,7 @@ Forma del dataset: (2565433, 29)
 
 Primeras 5 filas:</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="5">
+<div class="cell-output cell-output-display" data-execution_count="4">
 <div>
 
 
@@ -504,36 +499,36 @@ Primeras 5 filas:</code></pre>
 </div>
 </div>
 </div>
-<div id="a8272aeb" class="cell" data-execution_count="6">
+<div id="23e31110" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Estadísticas descriptivas de variables clave</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== ESTADÍSTICAS DESCRIPTIVAS ==="</span>)</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>key_columns <span class="op">=</span> [<span class="st">'decil'</span>, <span class="st">'tot_hogares'</span>, <span class="st">'tot_personas'</span>, <span class="st">'s3_vi01'</span>, <span class="st">'tipo_pob_rs18'</span>]</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>existing_cols <span class="op">=</span> [col <span class="cf">for</span> col <span class="kw">in</span> key_columns <span class="cf">if</span> col <span class="kw">in</span> df.columns]</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> existing_cols:</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    df[existing_cols].describe()</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"No se encontraron las columnas esperadas"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Estadísticas descriptivas de variables clave</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== ESTADÍSTICAS DESCRIPTIVAS ==="</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>key_columns <span class="op">=</span> [<span class="st">'decil'</span>, <span class="st">'tot_hogares'</span>, <span class="st">'tot_personas'</span>, <span class="st">'s3_vi01'</span>, <span class="st">'tipo_pob_rs18'</span>]</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>existing_cols <span class="op">=</span> [col <span class="cf">for</span> col <span class="kw">in</span> key_columns <span class="cf">if</span> col <span class="kw">in</span> df.columns]</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> existing_cols:</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    df[existing_cols].describe()</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"No se encontraron las columnas esperadas"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>=== ESTADÍSTICAS DESCRIPTIVAS ===</code></pre>
 </div>
 </div>
-<div id="f70d444f" class="cell" data-execution_count="7">
+<div id="b40ff64d" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar valores faltantes</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== VALORES FALTANTES ==="</span>)</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>missing_data <span class="op">=</span> df.isnull().<span class="bu">sum</span>()</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>missing_percent <span class="op">=</span> (missing_data <span class="op">/</span> <span class="bu">len</span>(df)) <span class="op">*</span> <span class="dv">100</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>missing_df <span class="op">=</span> pd.DataFrame({</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Columna'</span>: missing_data.index,</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Valores_Faltantes'</span>: missing_data.values,</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Porcentaje'</span>: missing_percent.values</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>}).sort_values(<span class="st">'Valores_Faltantes'</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(missing_df.head(<span class="dv">10</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar valores faltantes</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== VALORES FALTANTES ==="</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>missing_data <span class="op">=</span> df.isnull().<span class="bu">sum</span>()</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>missing_percent <span class="op">=</span> (missing_data <span class="op">/</span> <span class="bu">len</span>(df)) <span class="op">*</span> <span class="dv">100</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>missing_df <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Columna'</span>: missing_data.index,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Valores_Faltantes'</span>: missing_data.values,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Porcentaje'</span>: missing_percent.values</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>}).sort_values(<span class="st">'Valores_Faltantes'</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(missing_df.head(<span class="dv">10</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>=== VALORES FALTANTES ===
@@ -553,27 +548,27 @@ Primeras 5 filas:</code></pre>
 </section>
 <section id="definición-de-variable-objetivo-y-features" class="level2">
 <h2 class="anchored" data-anchor-id="definición-de-variable-objetivo-y-features">Definición de Variable Objetivo y Features</h2>
-<div id="db3411c9" class="cell" data-execution_count="8">
+<div id="34f3e333" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== DEFINIENDO VARIABLE OBJETIVO ==="</span>)</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Variable objetivo: decil socioeconómico</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>target_col <span class="op">=</span> <span class="st">'decil'</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> target_col <span class="kw">in</span> df.columns:</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Variable objetivo: </span><span class="sc">{</span>target_col<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Distribución de deciles:"</span>)</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(df[target_col].value_counts().sort_index())</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Visualizar distribución</span></span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    df[target_col].hist(bins<span class="op">=</span><span class="dv">10</span>, edgecolor<span class="op">=</span><span class="st">'black'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>, color<span class="op">=</span><span class="st">'skyblue'</span>)</span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    plt.title(<span class="st">'Distribución de Deciles Socioeconómicos'</span>, fontsize<span class="op">=</span><span class="dv">14</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    plt.xlabel(<span class="st">'Decil'</span>)</span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    plt.ylabel(<span class="st">'Frecuencia'</span>)</span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>    plt.grid(alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
-<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
-<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"ERROR: Columna </span><span class="sc">{</span>target_col<span class="sc">}</span><span class="ss"> no encontrada"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== DEFINIENDO VARIABLE OBJETIVO ==="</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Variable objetivo: decil socioeconómico</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>target_col <span class="op">=</span> <span class="st">'decil'</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> target_col <span class="kw">in</span> df.columns:</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Variable objetivo: </span><span class="sc">{</span>target_col<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Distribución de deciles:"</span>)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(df[target_col].value_counts().sort_index())</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Visualizar distribución</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    df[target_col].hist(bins<span class="op">=</span><span class="dv">10</span>, edgecolor<span class="op">=</span><span class="st">'black'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>, color<span class="op">=</span><span class="st">'skyblue'</span>)</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    plt.title(<span class="st">'Distribución de Deciles Socioeconómicos'</span>, fontsize<span class="op">=</span><span class="dv">14</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    plt.xlabel(<span class="st">'Decil'</span>)</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    plt.ylabel(<span class="st">'Frecuencia'</span>)</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    plt.grid(alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"ERROR: Columna </span><span class="sc">{</span>target_col<span class="sc">}</span><span class="ss"> no encontrada"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>=== DEFINIENDO VARIABLE OBJETIVO ===
@@ -594,74 +589,86 @@ Name: decil, dtype: int64</code></pre>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="regresion_hogares_files/figure-html/cell-9-output-2.png" width="877" height="548" class="figure-img"></p>
+<p><img src="regresion_hogares_files/figure-html/cell-8-output-2.png" width="877" height="548" class="figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
-<div id="64889edf" class="cell" data-execution_count="9">
+<div id="be0b5d70" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== SELECCIONANDO FEATURES ==="</span>)</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Primero ver todas las columnas disponibles</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Columnas disponibles en el dataset:"</span>)</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">list</span>(df.columns))</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Seleccionar features basadas en las columnas reales del dataset</span></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>feature_columns <span class="op">=</span> [</span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'tot_hogares'</span>,   <span class="co"># Total de hogares</span></span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">'tot_nucleos'</span>,   <span class="co"># Total de núcleos familiares</span></span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">'tot_personas'</span>,  <span class="co"># Total de personas</span></span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s3_vi01'</span>,       <span class="co"># Área (urbano/rural)</span></span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s3_vi03'</span>,       <span class="co"># Material de piso</span></span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s3_vi04'</span>,       <span class="co"># Material de techo  </span></span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s3_vi05'</span>,       <span class="co"># Material de pared</span></span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s4_ho01'</span>,       <span class="co"># Acceso a agua</span></span>
-<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s4_ho06'</span>,       <span class="co"># Acceso a electricidad</span></span>
-<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s4_ho08'</span>,       <span class="co"># Acceso a alcantarillado</span></span>
-<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s4_ho12'</span>,       <span class="co"># Acceso a teléfono</span></span>
-<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s4_ho16'</span>,       <span class="co"># Recolección de basura</span></span>
-<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s4_ho17'</span>        <span class="co"># Tipo de cocina</span></span>
-<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar qué columnas existen</span></span>
-<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>available_features <span class="op">=</span> [col <span class="cf">for</span> col <span class="kw">in</span> feature_columns <span class="cf">if</span> col <span class="kw">in</span> df.columns]</span>
-<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Features disponibles: </span><span class="sc">{</span>available_features<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Features no encontradas: </span><span class="sc">{</span><span class="bu">set</span>(feature_columns) <span class="op">-</span> <span class="bu">set</span>(available_features)<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== SELECCIONANDO Y CLASIFICANDO FEATURES ==="</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Primero ver todas las columnas disponibles</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Columnas disponibles en el dataset:"</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">list</span>(df.columns))</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Clasificar features por tipo de datos</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>numerical_features <span class="op">=</span> [</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'tot_hogares'</span>,   <span class="co"># Total de hogares</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">'tot_nucleos'</span>,   <span class="co"># Total de núcleos familiares</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">'tot_personas'</span>   <span class="co"># Total de personas</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>categorical_features <span class="op">=</span> [</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s3_vi01'</span>,       <span class="co"># Tipo de vivienda</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s3_vi03'</span>,       <span class="co"># Material de piso</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s3_vi04'</span>,       <span class="co"># Material de techo  </span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s3_vi05'</span>,       <span class="co"># Material de paredes</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s4_ho01'</span>,       <span class="co"># Procedencia del agua</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s4_ho06'</span>,       <span class="co"># Servicio eléctrico</span></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s4_ho08'</span>,       <span class="co"># Servicio higiénico</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s4_ho12'</span>,       <span class="co"># Teléfono convencional</span></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s4_ho16'</span>,       <span class="co"># Eliminación de basura</span></span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s4_ho17'</span>        <span class="co"># Combustible para cocinar</span></span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>all_features <span class="op">=</span> numerical_features <span class="op">+</span> categorical_features</span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar qué columnas existen</span></span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>available_numerical <span class="op">=</span> [col <span class="cf">for</span> col <span class="kw">in</span> numerical_features <span class="cf">if</span> col <span class="kw">in</span> df.columns]</span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>available_categorical <span class="op">=</span> [col <span class="cf">for</span> col <span class="kw">in</span> categorical_features <span class="cf">if</span> col <span class="kw">in</span> df.columns]</span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>available_features <span class="op">=</span> available_numerical <span class="op">+</span> available_categorical</span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Features numéricas disponibles: </span><span class="sc">{</span>available_numerical<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Features categóricas disponibles: </span><span class="sc">{</span>available_categorical<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Total features: </span><span class="sc">{</span><span class="bu">len</span>(available_features)<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>=== SELECCIONANDO FEATURES ===
+<pre><code>=== SELECCIONANDO Y CLASIFICANDO FEATURES ===
 Columnas disponibles en el dataset:
 ['s1_id06_cod', 's1_id06_des', 's1_id05_cod', 's1_id05_des', 's1_id04_cod', 's1_id04_des', 's1_id03', 's3_vi02', 's3_vi05_est', 's3_vi04_est', 's3_vi03_est', 's3_vi05', 's3_vi04', 's3_vi03', 's3_vi01', 's4_ho08', 's4_ho17', 's4_ho16', 's4_ho06', 's4_ho01', 's4_ho19', 's4_ho12', 's4_ho21', 's4_ho22', 'decil', 'tipo_pob_rs18', 'tot_hogares', 'tot_nucleos', 'tot_personas']
-Features disponibles: ['tot_hogares', 'tot_nucleos', 'tot_personas', 's3_vi01', 's3_vi03', 's3_vi04', 's3_vi05', 's4_ho01', 's4_ho06', 's4_ho08', 's4_ho12', 's4_ho16', 's4_ho17']
-Features no encontradas: set()</code></pre>
+Features numéricas disponibles: ['tot_hogares', 'tot_nucleos', 'tot_personas']
+Features categóricas disponibles: ['s3_vi01', 's3_vi03', 's3_vi04', 's3_vi05', 's4_ho01', 's4_ho06', 's4_ho08', 's4_ho12', 's4_ho16', 's4_ho17']
+Total features: 13</code></pre>
 </div>
 </div>
 </section>
 <section id="preparación-de-datos" class="level2">
 <h2 class="anchored" data-anchor-id="preparación-de-datos">Preparación de Datos</h2>
-<div id="761c9193" class="cell" data-execution_count="10">
+<div id="4da521c6" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== PREPARANDO DATOS PARA EL MODELO ==="</span>)</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear dataset limpio</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>model_data <span class="op">=</span> df[available_features <span class="op">+</span> [target_col]].copy()</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Eliminar filas con valores faltantes</span></span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>initial_rows <span class="op">=</span> <span class="bu">len</span>(model_data)</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>model_data <span class="op">=</span> model_data.dropna()</span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>final_rows <span class="op">=</span> <span class="bu">len</span>(model_data)</span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Filas iniciales: </span><span class="sc">{</span>initial_rows<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Filas después de limpiar: </span><span class="sc">{</span>final_rows<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Filas eliminadas: </span><span class="sc">{</span>initial_rows <span class="op">-</span> final_rows<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Separar features y target</span></span>
-<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> model_data[available_features]</span>
-<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> model_data[target_col]</span>
-<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Forma final de X: </span><span class="sc">{</span>X<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Forma final de y: </span><span class="sc">{</span>y<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== PREPARANDO DATOS PARA EL MODELO ==="</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear dataset limpio</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>model_data <span class="op">=</span> df[available_features <span class="op">+</span> [target_col]].copy()</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Eliminar filas con valores faltantes</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>initial_rows <span class="op">=</span> <span class="bu">len</span>(model_data)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>model_data <span class="op">=</span> model_data.dropna()</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>final_rows <span class="op">=</span> <span class="bu">len</span>(model_data)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Filas iniciales: </span><span class="sc">{</span>initial_rows<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Filas después de limpiar: </span><span class="sc">{</span>final_rows<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Filas eliminadas: </span><span class="sc">{</span>initial_rows <span class="op">-</span> final_rows<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Separar features y target</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> model_data[available_features]</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> model_data[target_col]</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Forma final de X: </span><span class="sc">{</span>X<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Forma final de y: </span><span class="sc">{</span>y<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Features numéricas: </span><span class="sc">{</span>available_numerical<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Features categóricas: </span><span class="sc">{</span>available_categorical<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>=== PREPARANDO DATOS PARA EL MODELO ===
@@ -669,18 +676,20 @@ Filas iniciales: 2565433
 Filas después de limpiar: 2565433
 Filas eliminadas: 0
 Forma final de X: (2565433, 13)
-Forma final de y: (2565433,)</code></pre>
+Forma final de y: (2565433,)
+Features numéricas: ['tot_hogares', 'tot_nucleos', 'tot_personas']
+Features categóricas: ['s3_vi01', 's3_vi03', 's3_vi04', 's3_vi05', 's4_ho01', 's4_ho06', 's4_ho08', 's4_ho12', 's4_ho16', 's4_ho17']</code></pre>
 </div>
 </div>
-<div id="510950c3" class="cell" data-execution_count="11">
+<div id="0133d435" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Estadísticas de las features</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== ESTADÍSTICAS DE FEATURES ==="</span>)</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="bu">len</span>(available_features) <span class="op">&gt;</span> <span class="dv">0</span>:</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    X.describe()</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"No hay features disponibles para mostrar estadísticas"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Estadísticas de las features</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== ESTADÍSTICAS DE FEATURES ==="</span>)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="bu">len</span>(available_features) <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    X.describe()</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"No hay features disponibles para mostrar estadísticas"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>=== ESTADÍSTICAS DE FEATURES ===</code></pre>
@@ -689,19 +698,19 @@ Forma final de y: (2565433,)</code></pre>
 </section>
 <section id="división-de-datos" class="level2">
 <h2 class="anchored" data-anchor-id="división-de-datos">División de Datos</h2>
-<div id="b53f8e5c" class="cell" data-execution_count="12">
+<div id="349b97d5" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== DIVIDIENDO DATOS ==="</span>)</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>X_train, X_test, y_train, y_test <span class="op">=</span> train_test_split(</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    X, y, test_size<span class="op">=</span><span class="fl">0.2</span>, random_state<span class="op">=</span><span class="dv">42</span></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Entrenamiento: </span><span class="sc">{</span>X_train<span class="sc">.</span>shape[<span class="dv">0</span>]<span class="sc">}</span><span class="ss"> muestras"</span>)</span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Prueba: </span><span class="sc">{</span>X_test<span class="sc">.</span>shape[<span class="dv">0</span>]<span class="sc">}</span><span class="ss"> muestras"</span>)</span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Estadísticas del target en entrenamiento:"</span>)</span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Media: </span><span class="sc">{</span>y_train<span class="sc">.</span>mean()<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Desviación estándar: </span><span class="sc">{</span>y_train<span class="sc">.</span>std()<span class="sc">:.2f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== DIVIDIENDO DATOS ==="</span>)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>X_train, X_test, y_train, y_test <span class="op">=</span> train_test_split(</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    X, y, test_size<span class="op">=</span><span class="fl">0.2</span>, random_state<span class="op">=</span><span class="dv">42</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Entrenamiento: </span><span class="sc">{</span>X_train<span class="sc">.</span>shape[<span class="dv">0</span>]<span class="sc">}</span><span class="ss"> muestras"</span>)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Prueba: </span><span class="sc">{</span>X_test<span class="sc">.</span>shape[<span class="dv">0</span>]<span class="sc">}</span><span class="ss"> muestras"</span>)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Estadísticas del target en entrenamiento:"</span>)</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Media: </span><span class="sc">{</span>y_train<span class="sc">.</span>mean()<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Desviación estándar: </span><span class="sc">{</span>y_train<span class="sc">.</span>std()<span class="sc">:.2f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>=== DIVIDIENDO DATOS ===
@@ -715,85 +724,99 @@ Desviación estándar: 2.36</code></pre>
 </section>
 <section id="definición-y-entrenamiento-del-modelo" class="level2">
 <h2 class="anchored" data-anchor-id="definición-y-entrenamiento-del-modelo">Definición y Entrenamiento del Modelo</h2>
-<div id="e321317f" class="cell" data-execution_count="13">
+<div id="c9691400" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== CREANDO PIPELINE DE REGRESIÓN ==="</span>)</span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Pipeline con escalado y regresión lineal</span></span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>pipeline <span class="op">=</span> Pipeline([</span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'scaler'</span>, StandardScaler()),</span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'regressor'</span>, LinearRegression())</span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>])</span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Entrenar modelo</span></span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Entrenando modelo LinearRegression..."</span>)</span>
-<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>pipeline.fit(X_train, y_train)</span>
-<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"✓ Modelo entrenado exitosamente"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== CREANDO PIPELINE DE REGRESIÓN ==="</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.compose <span class="im">import</span> ColumnTransformer</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> OneHotEncoder</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear pipeline de preprocesamiento correcto</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>preprocessor <span class="op">=</span> ColumnTransformer(</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    transformers<span class="op">=</span>[</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>        (<span class="st">'num'</span>, StandardScaler(), available_numerical),</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>        (<span class="st">'cat'</span>, OneHotEncoder(drop<span class="op">=</span><span class="st">'first'</span>, handle_unknown<span class="op">=</span><span class="st">'ignore'</span>), available_categorical)</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Pipeline completo con preprocesamiento adecuado</span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>pipeline <span class="op">=</span> Pipeline([</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'preprocessor'</span>, preprocessor),</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'regressor'</span>, LinearRegression())</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Entrenar modelo</span></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Entrenando modelo LinearRegression con preprocesamiento correcto..."</span>)</span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Variables numéricas: </span><span class="sc">{</span>available_numerical<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Variables categóricas: </span><span class="sc">{</span>available_categorical<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>pipeline.fit(X_train, y_train)</span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"✓ Modelo entrenado exitosamente"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>=== CREANDO PIPELINE DE REGRESIÓN ===
-Entrenando modelo LinearRegression...
+Entrenando modelo LinearRegression con preprocesamiento correcto...
+Variables numéricas: ['tot_hogares', 'tot_nucleos', 'tot_personas']
+Variables categóricas: ['s3_vi01', 's3_vi03', 's3_vi04', 's3_vi05', 's4_ho01', 's4_ho06', 's4_ho08', 's4_ho12', 's4_ho16', 's4_ho17']
 ✓ Modelo entrenado exitosamente</code></pre>
 </div>
 </div>
 </section>
 <section id="generación-de-predicciones" class="level2">
 <h2 class="anchored" data-anchor-id="generación-de-predicciones">Generación de Predicciones</h2>
-<div id="b24d35fc" class="cell" data-execution_count="14">
+<div id="15f2261f" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== REALIZANDO PREDICCIONES ==="</span>)</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>y_pred_train <span class="op">=</span> pipeline.predict(X_train)</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>y_pred_test <span class="op">=</span> pipeline.predict(X_test)</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Predicciones generadas para </span><span class="sc">{</span><span class="bu">len</span>(y_pred_test)<span class="sc">}</span><span class="ss"> muestras de prueba"</span>)</span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Rango de predicciones: [</span><span class="sc">{</span>y_pred_test<span class="sc">.</span><span class="bu">min</span>()<span class="sc">:.2f}</span><span class="ss">, </span><span class="sc">{</span>y_pred_test<span class="sc">.</span><span class="bu">max</span>()<span class="sc">:.2f}</span><span class="ss">]"</span>)</span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Rango real: [</span><span class="sc">{</span>y_test<span class="sc">.</span><span class="bu">min</span>()<span class="sc">:.2f}</span><span class="ss">, </span><span class="sc">{</span>y_test<span class="sc">.</span><span class="bu">max</span>()<span class="sc">:.2f}</span><span class="ss">]"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== REALIZANDO PREDICCIONES ==="</span>)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>y_pred_train <span class="op">=</span> pipeline.predict(X_train)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>y_pred_test <span class="op">=</span> pipeline.predict(X_test)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Predicciones generadas para </span><span class="sc">{</span><span class="bu">len</span>(y_pred_test)<span class="sc">}</span><span class="ss"> muestras de prueba"</span>)</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Rango de predicciones: [</span><span class="sc">{</span>y_pred_test<span class="sc">.</span><span class="bu">min</span>()<span class="sc">:.2f}</span><span class="ss">, </span><span class="sc">{</span>y_pred_test<span class="sc">.</span><span class="bu">max</span>()<span class="sc">:.2f}</span><span class="ss">]"</span>)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Rango real: [</span><span class="sc">{</span>y_test<span class="sc">.</span><span class="bu">min</span>()<span class="sc">:.2f}</span><span class="ss">, </span><span class="sc">{</span>y_test<span class="sc">.</span><span class="bu">max</span>()<span class="sc">:.2f}</span><span class="ss">]"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>=== REALIZANDO PREDICCIONES ===
 Predicciones generadas para 513087 muestras de prueba
-Rango de predicciones: [-45.78, 88.40]
+Rango de predicciones: [-45.74, 86.93]
 Rango real: [1.00, 10.00]</code></pre>
 </div>
 </div>
 </section>
 <section id="evaluación-del-modelo" class="level2">
 <h2 class="anchored" data-anchor-id="evaluación-del-modelo">Evaluación del Modelo</h2>
-<div id="20410c74" class="cell" data-execution_count="15">
+<div id="6b4976b5" class="cell" data-execution_count="14">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== EVALUACIÓN DEL MODELO ==="</span>)</span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Métricas en conjunto de entrenamiento</span></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>mse_train <span class="op">=</span> mean_squared_error(y_train, y_pred_train)</span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>rmse_train <span class="op">=</span> np.sqrt(mse_train)</span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>r2_train <span class="op">=</span> r2_score(y_train, y_pred_train)</span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Métricas en conjunto de prueba</span></span>
-<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>mse_test <span class="op">=</span> mean_squared_error(y_test, y_pred_test)</span>
-<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>rmse_test <span class="op">=</span> np.sqrt(mse_test)</span>
-<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>r2_test <span class="op">=</span> r2_score(y_test, y_pred_test)</span>
-<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear DataFrame con métricas</span></span>
-<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>metricas <span class="op">=</span> pd.DataFrame({</span>
-<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Métrica'</span>: [<span class="st">'MSE'</span>, <span class="st">'RMSE'</span>, <span class="st">'R² Score'</span>],</span>
-<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Entrenamiento'</span>: [mse_train, rmse_train, r2_train],</span>
-<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Prueba'</span>: [mse_test, rmse_test, r2_test],</span>
-<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Interpretación'</span>: [</span>
-<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f'Error cuadrático medio: </span><span class="sc">{</span>mse_test<span class="sc">:.3f}</span><span class="ss">'</span>,</span>
-<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f'Error promedio: ±</span><span class="sc">{</span>rmse_test<span class="sc">:.2f}</span><span class="ss"> deciles'</span>,</span>
-<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f'Varianza explicada: </span><span class="sc">{</span>r2_test<span class="op">*</span><span class="dv">100</span><span class="sc">:.1f}</span><span class="ss">%'</span></span>
-<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>    ]</span>
-<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(metricas.to_string(index<span class="op">=</span><span class="va">False</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== EVALUACIÓN DEL MODELO ==="</span>)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Métricas en conjunto de entrenamiento</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>mse_train <span class="op">=</span> mean_squared_error(y_train, y_pred_train)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>rmse_train <span class="op">=</span> np.sqrt(mse_train)</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>r2_train <span class="op">=</span> r2_score(y_train, y_pred_train)</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Métricas en conjunto de prueba</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>mse_test <span class="op">=</span> mean_squared_error(y_test, y_pred_test)</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>rmse_test <span class="op">=</span> np.sqrt(mse_test)</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>r2_test <span class="op">=</span> r2_score(y_test, y_pred_test)</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear DataFrame con métricas</span></span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>metricas <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Métrica'</span>: [<span class="st">'MSE'</span>, <span class="st">'RMSE'</span>, <span class="st">'R² Score'</span>],</span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Entrenamiento'</span>: [mse_train, rmse_train, r2_train],</span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Prueba'</span>: [mse_test, rmse_test, r2_test],</span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Interpretación'</span>: [</span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f'Error cuadrático medio: </span><span class="sc">{</span>mse_test<span class="sc">:.3f}</span><span class="ss">'</span>,</span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f'Error promedio: ±</span><span class="sc">{</span>rmse_test<span class="sc">:.2f}</span><span class="ss"> deciles'</span>,</span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f'Varianza explicada: </span><span class="sc">{</span>r2_test<span class="op">*</span><span class="dv">100</span><span class="sc">:.1f}</span><span class="ss">%'</span></span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(metricas.to_string(index<span class="op">=</span><span class="va">False</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>=== EVALUACIÓN DEL MODELO ===
  Métrica  Entrenamiento   Prueba                Interpretación
-     MSE       3.765140 3.690289 Error cuadrático medio: 3.690
-    RMSE       1.940397 1.921012 Error promedio: ±1.92 deciles
-R² Score       0.324644 0.338031     Varianza explicada: 33.8%</code></pre>
+     MSE       3.466656 3.385502 Error cuadrático medio: 3.386
+    RMSE       1.861896 1.839973 Error promedio: ±1.84 deciles
+R² Score       0.378183 0.392704     Varianza explicada: 39.3%</code></pre>
 </div>
 </div>
 </section>
@@ -801,28 +824,28 @@ R² Score       0.324644 0.338031     Varianza explicada: 33.8%</code></pre>
 <h2 class="anchored" data-anchor-id="visualizaciones">Visualizaciones</h2>
 <section id="valores-reales-vs-predichos" class="level3">
 <h3 class="anchored" data-anchor-id="valores-reales-vs-predichos">Valores Reales vs Predichos</h3>
-<div id="61583b76" class="cell" data-execution_count="16">
+<div id="eb386cc2" class="cell" data-execution_count="15">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">8</span>))</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>plt.scatter(y_test, y_pred_test, alpha<span class="op">=</span><span class="fl">0.6</span>, color<span class="op">=</span><span class="st">'blue'</span>, s<span class="op">=</span><span class="dv">20</span>)</span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>plt.plot([y_test.<span class="bu">min</span>(), y_test.<span class="bu">max</span>()], [y_test.<span class="bu">min</span>(), y_test.<span class="bu">max</span>()], <span class="st">'r--'</span>, lw<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Deciles Reales'</span>)</span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Deciles Predichos'</span>)</span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Valores Reales vs Predichos - Deciles Socioeconómicos'</span>, fontsize<span class="op">=</span><span class="dv">14</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
-<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>plt.grid(alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Añadir métricas al gráfico</span></span>
-<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>plt.text(<span class="fl">0.05</span>, <span class="fl">0.95</span>, <span class="ss">f'R² = </span><span class="sc">{</span>r2_test<span class="sc">:.3f}</span><span class="ch">\n</span><span class="ss">RMSE = </span><span class="sc">{</span>rmse_test<span class="sc">:.2f}</span><span class="ss">'</span>, </span>
-<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>         transform<span class="op">=</span>plt.gca().transAxes, fontsize<span class="op">=</span><span class="dv">12</span>, </span>
-<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>         verticalalignment<span class="op">=</span><span class="st">'top'</span>, bbox<span class="op">=</span><span class="bu">dict</span>(boxstyle<span class="op">=</span><span class="st">'round'</span>, facecolor<span class="op">=</span><span class="st">'wheat'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>))</span>
-<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">8</span>))</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>plt.scatter(y_test, y_pred_test, alpha<span class="op">=</span><span class="fl">0.6</span>, color<span class="op">=</span><span class="st">'blue'</span>, s<span class="op">=</span><span class="dv">20</span>)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>plt.plot([y_test.<span class="bu">min</span>(), y_test.<span class="bu">max</span>()], [y_test.<span class="bu">min</span>(), y_test.<span class="bu">max</span>()], <span class="st">'r--'</span>, lw<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Deciles Reales'</span>)</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Deciles Predichos'</span>)</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Valores Reales vs Predichos - Deciles Socioeconómicos'</span>, fontsize<span class="op">=</span><span class="dv">14</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>plt.grid(alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Añadir métricas al gráfico</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>plt.text(<span class="fl">0.05</span>, <span class="fl">0.95</span>, <span class="ss">f'R² = </span><span class="sc">{</span>r2_test<span class="sc">:.3f}</span><span class="ch">\n</span><span class="ss">RMSE = </span><span class="sc">{</span>rmse_test<span class="sc">:.2f}</span><span class="ss">'</span>, </span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>         transform<span class="op">=</span>plt.gca().transAxes, fontsize<span class="op">=</span><span class="dv">12</span>, </span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>         verticalalignment<span class="op">=</span><span class="st">'top'</span>, bbox<span class="op">=</span><span class="bu">dict</span>(boxstyle<span class="op">=</span><span class="st">'round'</span>, facecolor<span class="op">=</span><span class="st">'wheat'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>))</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="regresion_hogares_files/figure-html/cell-17-output-1.png" width="990" height="790" class="figure-img"></p>
+<p><img src="regresion_hogares_files/figure-html/cell-16-output-1.png" width="990" height="790" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -830,37 +853,37 @@ R² Score       0.324644 0.338031     Varianza explicada: 33.8%</code></pre>
 </section>
 <section id="distribución-de-errores" class="level3">
 <h3 class="anchored" data-anchor-id="distribución-de-errores">Distribución de Errores</h3>
-<div id="577a4ee7" class="cell" data-execution_count="17">
+<div id="2d01bd3a" class="cell" data-execution_count="16">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">5</span>))</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Subplot 1: Histograma de errores</span></span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>plt.subplot(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">1</span>)</span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>errors <span class="op">=</span> y_test <span class="op">-</span> y_pred_test</span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>plt.hist(errors, bins<span class="op">=</span><span class="dv">30</span>, edgecolor<span class="op">=</span><span class="st">'black'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>, color<span class="op">=</span><span class="st">'lightcoral'</span>)</span>
-<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Error (Real - Predicho)'</span>)</span>
-<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Frecuencia'</span>)</span>
-<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Distribución de Errores'</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
-<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>plt.axvline(x<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">'red'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
-<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>plt.grid(alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Subplot 2: Errores vs valores predichos</span></span>
-<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>plt.subplot(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">2</span>)</span>
-<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>plt.scatter(y_pred_test, errors, alpha<span class="op">=</span><span class="fl">0.6</span>, color<span class="op">=</span><span class="st">'green'</span>, s<span class="op">=</span><span class="dv">20</span>)</span>
-<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Valores Predichos'</span>)</span>
-<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Error (Real - Predicho)'</span>)</span>
-<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Errores vs Valores Predichos'</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
-<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>plt.axhline(y<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">'red'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
-<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>plt.grid(alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">5</span>))</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Subplot 1: Histograma de errores</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>plt.subplot(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">1</span>)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>errors <span class="op">=</span> y_test <span class="op">-</span> y_pred_test</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>plt.hist(errors, bins<span class="op">=</span><span class="dv">30</span>, edgecolor<span class="op">=</span><span class="st">'black'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>, color<span class="op">=</span><span class="st">'lightcoral'</span>)</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Error (Real - Predicho)'</span>)</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Frecuencia'</span>)</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Distribución de Errores'</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>plt.axvline(x<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">'red'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>plt.grid(alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Subplot 2: Errores vs valores predichos</span></span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>plt.subplot(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">2</span>)</span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>plt.scatter(y_pred_test, errors, alpha<span class="op">=</span><span class="fl">0.6</span>, color<span class="op">=</span><span class="st">'green'</span>, s<span class="op">=</span><span class="dv">20</span>)</span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Valores Predichos'</span>)</span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Error (Real - Predicho)'</span>)</span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Errores vs Valores Predichos'</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>plt.axhline(y<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">'red'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>plt.grid(alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb30-23"><a href="#cb30-23" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="regresion_hogares_files/figure-html/cell-18-output-1.png" width="1190" height="488" class="figure-img"></p>
+<p><img src="regresion_hogares_files/figure-html/cell-17-output-1.png" width="1190" height="488" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -868,35 +891,35 @@ R² Score       0.324644 0.338031     Varianza explicada: 33.8%</code></pre>
 </section>
 <section id="curva-de-aprendizaje" class="level3">
 <h3 class="anchored" data-anchor-id="curva-de-aprendizaje">Curva de Aprendizaje</h3>
-<div id="d1527d85" class="cell" data-execution_count="18">
+<div id="c1b5f528" class="cell" data-execution_count="17">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== GENERANDO CURVA DE APRENDIZAJE ==="</span>)</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>train_sizes, train_scores, val_scores <span class="op">=</span> learning_curve(</span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>    pipeline, X_train, y_train, cv<span class="op">=</span><span class="dv">5</span>, </span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    train_sizes<span class="op">=</span>np.linspace(<span class="fl">0.1</span>, <span class="fl">1.0</span>, <span class="dv">10</span>),</span>
-<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    scoring<span class="op">=</span><span class="st">'r2'</span>, random_state<span class="op">=</span><span class="dv">42</span></span>
-<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Calcular medias y desviaciones estándar</span></span>
-<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>train_mean <span class="op">=</span> np.mean(train_scores, axis<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>train_std <span class="op">=</span> np.std(train_scores, axis<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>val_mean <span class="op">=</span> np.mean(val_scores, axis<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>val_std <span class="op">=</span> np.std(val_scores, axis<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
-<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>plt.plot(train_sizes, train_mean, <span class="st">'o-'</span>, color<span class="op">=</span><span class="st">'blue'</span>, label<span class="op">=</span><span class="st">'Entrenamiento'</span>)</span>
-<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>plt.fill_between(train_sizes, train_mean <span class="op">-</span> train_std, train_mean <span class="op">+</span> train_std, alpha<span class="op">=</span><span class="fl">0.1</span>, color<span class="op">=</span><span class="st">'blue'</span>)</span>
-<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>plt.plot(train_sizes, val_mean, <span class="st">'o-'</span>, color<span class="op">=</span><span class="st">'red'</span>, label<span class="op">=</span><span class="st">'Validación'</span>)</span>
-<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>plt.fill_between(train_sizes, val_mean <span class="op">-</span> val_std, val_mean <span class="op">+</span> val_std, alpha<span class="op">=</span><span class="fl">0.1</span>, color<span class="op">=</span><span class="st">'red'</span>)</span>
-<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Tamaño del Conjunto de Entrenamiento'</span>)</span>
-<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'R² Score'</span>)</span>
-<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Curva de Aprendizaje - Regresión de Deciles'</span>, fontsize<span class="op">=</span><span class="dv">14</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
-<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
-<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a>plt.grid(alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== GENERANDO CURVA DE APRENDIZAJE ==="</span>)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>train_sizes, train_scores, val_scores <span class="op">=</span> learning_curve(</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    pipeline, X_train, y_train, cv<span class="op">=</span><span class="dv">5</span>, </span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    train_sizes<span class="op">=</span>np.linspace(<span class="fl">0.1</span>, <span class="fl">1.0</span>, <span class="dv">10</span>),</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    scoring<span class="op">=</span><span class="st">'r2'</span>, random_state<span class="op">=</span><span class="dv">42</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Calcular medias y desviaciones estándar</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>train_mean <span class="op">=</span> np.mean(train_scores, axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>train_std <span class="op">=</span> np.std(train_scores, axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>val_mean <span class="op">=</span> np.mean(val_scores, axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>val_std <span class="op">=</span> np.std(val_scores, axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>plt.plot(train_sizes, train_mean, <span class="st">'o-'</span>, color<span class="op">=</span><span class="st">'blue'</span>, label<span class="op">=</span><span class="st">'Entrenamiento'</span>)</span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>plt.fill_between(train_sizes, train_mean <span class="op">-</span> train_std, train_mean <span class="op">+</span> train_std, alpha<span class="op">=</span><span class="fl">0.1</span>, color<span class="op">=</span><span class="st">'blue'</span>)</span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>plt.plot(train_sizes, val_mean, <span class="st">'o-'</span>, color<span class="op">=</span><span class="st">'red'</span>, label<span class="op">=</span><span class="st">'Validación'</span>)</span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>plt.fill_between(train_sizes, val_mean <span class="op">-</span> val_std, val_mean <span class="op">+</span> val_std, alpha<span class="op">=</span><span class="fl">0.1</span>, color<span class="op">=</span><span class="st">'red'</span>)</span>
+<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Tamaño del Conjunto de Entrenamiento'</span>)</span>
+<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'R² Score'</span>)</span>
+<span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Curva de Aprendizaje - Regresión de Deciles'</span>, fontsize<span class="op">=</span><span class="dv">14</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb31-24"><a href="#cb31-24" aria-hidden="true" tabindex="-1"></a>plt.grid(alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb31-25"><a href="#cb31-25" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb31-26"><a href="#cb31-26" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>=== GENERANDO CURVA DE APRENDIZAJE ===</code></pre>
@@ -904,7 +927,7 @@ R² Score       0.324644 0.338031     Varianza explicada: 33.8%</code></pre>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="regresion_hogares_files/figure-html/cell-19-output-2.png" width="990" height="589" class="figure-img"></p>
+<p><img src="regresion_hogares_files/figure-html/cell-18-output-2.png" width="990" height="589" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -913,67 +936,104 @@ R² Score       0.324644 0.338031     Varianza explicada: 33.8%</code></pre>
 </section>
 <section id="análisis-de-importancia-de-features" class="level2">
 <h2 class="anchored" data-anchor-id="análisis-de-importancia-de-features">Análisis de Importancia de Features</h2>
-<div id="45271fa8" class="cell" data-execution_count="19">
+<div id="77983e72" class="cell" data-execution_count="18">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== ANÁLISIS DE IMPORTANCIA DE FEATURES ==="</span>)</span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Obtener coeficientes del modelo</span></span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>feature_names <span class="op">=</span> available_features</span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>coefficients <span class="op">=</span> pipeline.named_steps[<span class="st">'regressor'</span>].coef_</span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear DataFrame con importancias</span></span>
-<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>feature_importance <span class="op">=</span> pd.DataFrame({</span>
-<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'feature'</span>: feature_names,</span>
-<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">'coefficient'</span>: coefficients,</span>
-<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">'abs_coefficient'</span>: np.<span class="bu">abs</span>(coefficients)</span>
-<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>}).sort_values(<span class="st">'abs_coefficient'</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Importancia de features (coeficientes):"</span>)</span>
-<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _, row <span class="kw">in</span> feature_importance.iterrows():</span>
-<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>    var_name <span class="op">=</span> row[<span class="st">'feature'</span>]</span>
-<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>    coef <span class="op">=</span> row[<span class="st">'coefficient'</span>]</span>
-<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>    description <span class="op">=</span> variable_mapping.get(var_name, <span class="st">'Sin descripción'</span>)</span>
-<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>var_name<span class="sc">:12}</span><span class="ss"> | </span><span class="sc">{</span>coef<span class="sc">:8.3f}</span><span class="ss"> | </span><span class="sc">{</span>description<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== ANÁLISIS DE IMPORTANCIA DE FEATURES ==="</span>)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Obtener nombres de features después del preprocesamiento</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>feature_names <span class="op">=</span> (available_numerical <span class="op">+</span> </span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>                <span class="bu">list</span>(pipeline.named_steps[<span class="st">'preprocessor'</span>]</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>                    .named_transformers_[<span class="st">'cat'</span>]</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>                    .get_feature_names_out(available_categorical)))</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>coefficients <span class="op">=</span> pipeline.named_steps[<span class="st">'regressor'</span>].coef_</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear DataFrame con importancias</span></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>feature_importance <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">'feature'</span>: feature_names,</span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">'coefficient'</span>: coefficients,</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">'abs_coefficient'</span>: np.<span class="bu">abs</span>(coefficients)</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>}).sort_values(<span class="st">'abs_coefficient'</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Mapeo de nombres descriptivos para interpretación</span></span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>feature_descriptions <span class="op">=</span> {</span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">'tot_personas'</span>: <span class="st">'Total de personas en el hogar'</span>,</span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">'tot_nucleos'</span>: <span class="st">'Total de núcleos familiares'</span>, </span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">'tot_hogares'</span>: <span class="st">'Total de hogares en el área'</span></span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Top 15 features más importantes:"</span>)</span>
+<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _, row <span class="kw">in</span> feature_importance.head(<span class="dv">15</span>).iterrows():</span>
+<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a>    var_name <span class="op">=</span> row[<span class="st">'feature'</span>]</span>
+<span id="cb33-27"><a href="#cb33-27" aria-hidden="true" tabindex="-1"></a>    coef <span class="op">=</span> row[<span class="st">'coefficient'</span>]</span>
+<span id="cb33-28"><a href="#cb33-28" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb33-29"><a href="#cb33-29" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Descripción más clara para variables categóricas</span></span>
+<span id="cb33-30"><a href="#cb33-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> var_name <span class="kw">in</span> feature_descriptions:</span>
+<span id="cb33-31"><a href="#cb33-31" aria-hidden="true" tabindex="-1"></a>        description <span class="op">=</span> feature_descriptions[var_name]</span>
+<span id="cb33-32"><a href="#cb33-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> <span class="st">'s3_vi03'</span> <span class="kw">in</span> var_name:</span>
+<span id="cb33-33"><a href="#cb33-33" aria-hidden="true" tabindex="-1"></a>        description <span class="op">=</span> <span class="ss">f'Material del piso (categoría </span><span class="sc">{</span>var_name<span class="sc">.</span>split(<span class="st">"_"</span>)[<span class="op">-</span><span class="dv">1</span>]<span class="sc">}</span><span class="ss">)'</span></span>
+<span id="cb33-34"><a href="#cb33-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> <span class="st">'s3_vi04'</span> <span class="kw">in</span> var_name:</span>
+<span id="cb33-35"><a href="#cb33-35" aria-hidden="true" tabindex="-1"></a>        description <span class="op">=</span> <span class="ss">f'Material del techo (categoría </span><span class="sc">{</span>var_name<span class="sc">.</span>split(<span class="st">"_"</span>)[<span class="op">-</span><span class="dv">1</span>]<span class="sc">}</span><span class="ss">)'</span></span>
+<span id="cb33-36"><a href="#cb33-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> <span class="st">'s3_vi05'</span> <span class="kw">in</span> var_name:</span>
+<span id="cb33-37"><a href="#cb33-37" aria-hidden="true" tabindex="-1"></a>        description <span class="op">=</span> <span class="ss">f'Material de paredes (categoría </span><span class="sc">{</span>var_name<span class="sc">.</span>split(<span class="st">"_"</span>)[<span class="op">-</span><span class="dv">1</span>]<span class="sc">}</span><span class="ss">)'</span></span>
+<span id="cb33-38"><a href="#cb33-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> <span class="st">'s4_ho01'</span> <span class="kw">in</span> var_name:</span>
+<span id="cb33-39"><a href="#cb33-39" aria-hidden="true" tabindex="-1"></a>        description <span class="op">=</span> <span class="ss">f'Procedencia del agua (categoría </span><span class="sc">{</span>var_name<span class="sc">.</span>split(<span class="st">"_"</span>)[<span class="op">-</span><span class="dv">1</span>]<span class="sc">}</span><span class="ss">)'</span></span>
+<span id="cb33-40"><a href="#cb33-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> <span class="st">'s4_ho06'</span> <span class="kw">in</span> var_name:</span>
+<span id="cb33-41"><a href="#cb33-41" aria-hidden="true" tabindex="-1"></a>        description <span class="op">=</span> <span class="ss">f'Servicio eléctrico (categoría </span><span class="sc">{</span>var_name<span class="sc">.</span>split(<span class="st">"_"</span>)[<span class="op">-</span><span class="dv">1</span>]<span class="sc">}</span><span class="ss">)'</span></span>
+<span id="cb33-42"><a href="#cb33-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> <span class="st">'s4_ho08'</span> <span class="kw">in</span> var_name:</span>
+<span id="cb33-43"><a href="#cb33-43" aria-hidden="true" tabindex="-1"></a>        description <span class="op">=</span> <span class="ss">f'Servicio higiénico (categoría </span><span class="sc">{</span>var_name<span class="sc">.</span>split(<span class="st">"_"</span>)[<span class="op">-</span><span class="dv">1</span>]<span class="sc">}</span><span class="ss">)'</span></span>
+<span id="cb33-44"><a href="#cb33-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> <span class="st">'s4_ho12'</span> <span class="kw">in</span> var_name:</span>
+<span id="cb33-45"><a href="#cb33-45" aria-hidden="true" tabindex="-1"></a>        description <span class="op">=</span> <span class="ss">f'Teléfono fijo (categoría </span><span class="sc">{</span>var_name<span class="sc">.</span>split(<span class="st">"_"</span>)[<span class="op">-</span><span class="dv">1</span>]<span class="sc">}</span><span class="ss">)'</span></span>
+<span id="cb33-46"><a href="#cb33-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> <span class="st">'s4_ho16'</span> <span class="kw">in</span> var_name:</span>
+<span id="cb33-47"><a href="#cb33-47" aria-hidden="true" tabindex="-1"></a>        description <span class="op">=</span> <span class="ss">f'Recolección de basura (categoría </span><span class="sc">{</span>var_name<span class="sc">.</span>split(<span class="st">"_"</span>)[<span class="op">-</span><span class="dv">1</span>]<span class="sc">}</span><span class="ss">)'</span></span>
+<span id="cb33-48"><a href="#cb33-48" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> <span class="st">'s4_ho17'</span> <span class="kw">in</span> var_name:</span>
+<span id="cb33-49"><a href="#cb33-49" aria-hidden="true" tabindex="-1"></a>        description <span class="op">=</span> <span class="ss">f'Combustible para cocinar (categoría </span><span class="sc">{</span>var_name<span class="sc">.</span>split(<span class="st">"_"</span>)[<span class="op">-</span><span class="dv">1</span>]<span class="sc">}</span><span class="ss">)'</span></span>
+<span id="cb33-50"><a href="#cb33-50" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb33-51"><a href="#cb33-51" aria-hidden="true" tabindex="-1"></a>        description <span class="op">=</span> <span class="st">'Variable del hogar'</span></span>
+<span id="cb33-52"><a href="#cb33-52" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb33-53"><a href="#cb33-53" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>var_name<span class="sc">:25}</span><span class="ss"> | </span><span class="sc">{</span>coef<span class="sc">:8.3f}</span><span class="ss"> | </span><span class="sc">{</span>description<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>=== ANÁLISIS DE IMPORTANCIA DE FEATURES ===
-Importancia de features (coeficientes):
-tot_personas |   -2.680 | Sin descripción
-tot_nucleos  |    1.751 | Sin descripción
-tot_hogares  |    0.851 | Sin descripción
-s3_vi04      |   -0.639 | Sin descripción
-s4_ho12      |   -0.307 | Sin descripción
-s4_ho06      |   -0.281 | Sin descripción
-s4_ho08      |    0.274 | Sin descripción
-s4_ho01      |   -0.266 | Sin descripción
-s3_vi01      |   -0.196 | Sin descripción
-s4_ho16      |   -0.123 | Sin descripción
-s3_vi03      |   -0.108 | Sin descripción
-s4_ho17      |    0.019 | Sin descripción
-s3_vi05      |    0.008 | Sin descripción</code></pre>
+Top 15 features más importantes:
+tot_personas              |   -2.653 | Total de personas en el hogar
+s3_vi04_7                 |   -1.847 | Material del techo (categoría 7)
+tot_nucleos               |    1.704 | Total de núcleos familiares
+s3_vi04_6                 |   -1.578 | Material del techo (categoría 6)
+s3_vi04_4                 |   -1.436 | Material del techo (categoría 4)
+s3_vi04_5                 |   -1.260 | Material del techo (categoría 5)
+s3_vi04_8                 |   -1.080 | Material del techo (categoría 8)
+s4_ho12_5                 |   -0.965 | Teléfono fijo (categoría 5)
+s4_ho12_6                 |   -0.955 | Teléfono fijo (categoría 6)
+s4_ho12_3                 |   -0.897 | Teléfono fijo (categoría 3)
+tot_hogares               |    0.859 | Total de hogares en el área
+s4_ho17_3                 |    0.799 | Combustible para cocinar (categoría 3)
+s4_ho01_3                 |   -0.794 | Procedencia del agua (categoría 3)
+s4_ho17_2                 |   -0.750 | Combustible para cocinar (categoría 2)
+s4_ho01_4                 |   -0.713 | Procedencia del agua (categoría 4)</code></pre>
 </div>
 </div>
-<div id="234bf946" class="cell" data-execution_count="20">
+<div id="0aec744a" class="cell" data-execution_count="19">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualizar importancia de features</span></span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">8</span>))</span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> [<span class="st">'red'</span> <span class="cf">if</span> coef <span class="op">&lt;</span> <span class="dv">0</span> <span class="cf">else</span> <span class="st">'green'</span> <span class="cf">for</span> coef <span class="kw">in</span> feature_importance[<span class="st">'coefficient'</span>]]</span>
-<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>plt.barh(<span class="bu">range</span>(<span class="bu">len</span>(feature_importance)), feature_importance[<span class="st">'coefficient'</span>], color<span class="op">=</span>colors)</span>
-<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>plt.yticks(<span class="bu">range</span>(<span class="bu">len</span>(feature_importance)), feature_importance[<span class="st">'feature'</span>])</span>
-<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Coeficiente'</span>)</span>
-<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Importancia de Features (Coeficientes de Regresión)'</span>, fontsize<span class="op">=</span><span class="dv">14</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
-<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>plt.grid(axis<span class="op">=</span><span class="st">'x'</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Añadir línea en x=0</span></span>
-<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>plt.axvline(x<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">'black'</span>, linestyle<span class="op">=</span><span class="st">'-'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
-<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualizar importancia de features</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">8</span>))</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> [<span class="st">'red'</span> <span class="cf">if</span> coef <span class="op">&lt;</span> <span class="dv">0</span> <span class="cf">else</span> <span class="st">'green'</span> <span class="cf">for</span> coef <span class="kw">in</span> feature_importance[<span class="st">'coefficient'</span>]]</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>plt.barh(<span class="bu">range</span>(<span class="bu">len</span>(feature_importance)), feature_importance[<span class="st">'coefficient'</span>], color<span class="op">=</span>colors)</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>plt.yticks(<span class="bu">range</span>(<span class="bu">len</span>(feature_importance)), feature_importance[<span class="st">'feature'</span>])</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Coeficiente'</span>)</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Importancia de Features (Coeficientes de Regresión)'</span>, fontsize<span class="op">=</span><span class="dv">14</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>plt.grid(axis<span class="op">=</span><span class="st">'x'</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Añadir línea en x=0</span></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>plt.axvline(x<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">'black'</span>, linestyle<span class="op">=</span><span class="st">'-'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="regresion_hogares_files/figure-html/cell-21-output-1.png" width="1189" height="789" class="figure-img"></p>
+<p><img src="regresion_hogares_files/figure-html/cell-20-output-1.png" width="1189" height="789" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -981,27 +1041,27 @@ s3_vi05      |    0.008 | Sin descripción</code></pre>
 </section>
 <section id="análisis-por-deciles" class="level2">
 <h2 class="anchored" data-anchor-id="análisis-por-deciles">Análisis por Deciles</h2>
-<div id="823398db" class="cell" data-execution_count="21">
+<div id="8574b402" class="cell" data-execution_count="20">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== ANÁLISIS POR DECILES ==="</span>)</span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear DataFrame con resultados por decil</span></span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>results_by_decil <span class="op">=</span> pd.DataFrame({</span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'decil_real'</span>: y_test,</span>
-<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'decil_predicho'</span>: y_pred_test,</span>
-<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'error'</span>: y_test <span class="op">-</span> y_pred_test,</span>
-<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'error_abs'</span>: np.<span class="bu">abs</span>(y_test <span class="op">-</span> y_pred_test)</span>
-<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Estadísticas por decil real</span></span>
-<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>decil_stats <span class="op">=</span> results_by_decil.groupby(<span class="st">'decil_real'</span>).agg({</span>
-<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">'decil_predicho'</span>: [<span class="st">'mean'</span>, <span class="st">'std'</span>],</span>
-<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">'error'</span>: [<span class="st">'mean'</span>, <span class="st">'std'</span>],</span>
-<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">'error_abs'</span>: <span class="st">'mean'</span></span>
-<span id="cb38-15"><a href="#cb38-15" aria-hidden="true" tabindex="-1"></a>}).<span class="bu">round</span>(<span class="dv">3</span>)</span>
-<span id="cb38-16"><a href="#cb38-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-17"><a href="#cb38-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Estadísticas por decil real:"</span>)</span>
-<span id="cb38-18"><a href="#cb38-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(decil_stats)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== ANÁLISIS POR DECILES ==="</span>)</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear DataFrame con resultados por decil</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>results_by_decil <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'decil_real'</span>: y_test,</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'decil_predicho'</span>: y_pred_test,</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'error'</span>: y_test <span class="op">-</span> y_pred_test,</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'error_abs'</span>: np.<span class="bu">abs</span>(y_test <span class="op">-</span> y_pred_test)</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Estadísticas por decil real</span></span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>decil_stats <span class="op">=</span> results_by_decil.groupby(<span class="st">'decil_real'</span>).agg({</span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">'decil_predicho'</span>: [<span class="st">'mean'</span>, <span class="st">'std'</span>],</span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">'error'</span>: [<span class="st">'mean'</span>, <span class="st">'std'</span>],</span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">'error_abs'</span>: <span class="st">'mean'</span></span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a>}).<span class="bu">round</span>(<span class="dv">3</span>)</span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Estadísticas por decil real:"</span>)</span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(decil_stats)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>=== ANÁLISIS POR DECILES ===
@@ -1009,63 +1069,63 @@ Estadísticas por decil real:
            decil_predicho         error        error_abs
                      mean    std   mean    std      mean
 decil_real                                              
-1                   2.667  1.130 -1.667  1.130     1.734
-2                   3.405  1.057 -1.405  1.057     1.509
-3                   3.857  1.003 -0.857  1.003     1.102
-4                   4.170  0.987 -0.170  0.987     0.774
-5                   4.406  0.958  0.594  0.958     0.863
-6                   4.620  0.977  1.380  0.977     1.416
-7                   4.837  0.994  2.163  0.994     2.189
-8                   5.115  1.236  2.885  1.236     2.937
-9                   5.420  1.300  3.580  1.300     3.646
-10                  5.733  1.102  4.267  1.102     4.315</code></pre>
+1                   2.513  1.048 -1.513  1.048     1.569
+2                   3.299  1.036 -1.299  1.036     1.379
+3                   3.798  1.047 -0.798  1.047     1.038
+4                   4.171  1.061 -0.171  1.061     0.841
+5                   4.461  1.061  0.539  1.061     0.958
+6                   4.724  1.095  1.276  1.095     1.381
+7                   4.989  1.117  2.011  1.117     2.045
+8                   5.334  1.338  2.666  1.338     2.721
+9                   5.713  1.403  3.287  1.403     3.357
+10                  6.107  1.227  3.893  1.227     3.945</code></pre>
 </div>
 </div>
-<div id="da1c209f" class="cell" data-execution_count="22">
+<div id="3729fa23" class="cell" data-execution_count="21">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualización por deciles</span></span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">8</span>))</span>
-<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Boxplot de predicciones por decil real</span></span>
-<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>plt.subplot(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">1</span>)</span>
-<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>results_by_decil.boxplot(column<span class="op">=</span><span class="st">'decil_predicho'</span>, by<span class="op">=</span><span class="st">'decil_real'</span>, ax<span class="op">=</span>plt.gca())</span>
-<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Predicciones por Decil Real'</span>)</span>
-<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Decil Real'</span>)</span>
-<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Decil Predicho'</span>)</span>
-<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Boxplot de errores por decil real</span></span>
-<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>plt.subplot(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span>)</span>
-<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>results_by_decil.boxplot(column<span class="op">=</span><span class="st">'error_abs'</span>, by<span class="op">=</span><span class="st">'decil_real'</span>, ax<span class="op">=</span>plt.gca())</span>
-<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Error Absoluto por Decil Real'</span>)</span>
-<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Decil Real'</span>)</span>
-<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Error Absoluto'</span>)</span>
-<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Scatter plot con colores por decil</span></span>
-<span id="cb40-19"><a href="#cb40-19" aria-hidden="true" tabindex="-1"></a>plt.subplot(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span>
-<span id="cb40-20"><a href="#cb40-20" aria-hidden="true" tabindex="-1"></a>scatter <span class="op">=</span> plt.scatter(results_by_decil[<span class="st">'decil_real'</span>], results_by_decil[<span class="st">'decil_predicho'</span>], </span>
-<span id="cb40-21"><a href="#cb40-21" aria-hidden="true" tabindex="-1"></a>                     c<span class="op">=</span>results_by_decil[<span class="st">'decil_real'</span>], cmap<span class="op">=</span><span class="st">'viridis'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
-<span id="cb40-22"><a href="#cb40-22" aria-hidden="true" tabindex="-1"></a>plt.plot([<span class="dv">1</span>, <span class="dv">10</span>], [<span class="dv">1</span>, <span class="dv">10</span>], <span class="st">'r--'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
-<span id="cb40-23"><a href="#cb40-23" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Decil Real'</span>)</span>
-<span id="cb40-24"><a href="#cb40-24" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Decil Predicho'</span>)</span>
-<span id="cb40-25"><a href="#cb40-25" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Predicciones Coloreadas por Decil'</span>)</span>
-<span id="cb40-26"><a href="#cb40-26" aria-hidden="true" tabindex="-1"></a>plt.colorbar(scatter)</span>
-<span id="cb40-27"><a href="#cb40-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-28"><a href="#cb40-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Histograma de errores</span></span>
-<span id="cb40-29"><a href="#cb40-29" aria-hidden="true" tabindex="-1"></a>plt.subplot(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">4</span>)</span>
-<span id="cb40-30"><a href="#cb40-30" aria-hidden="true" tabindex="-1"></a>plt.hist(results_by_decil[<span class="st">'error'</span>], bins<span class="op">=</span><span class="dv">20</span>, edgecolor<span class="op">=</span><span class="st">'black'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
-<span id="cb40-31"><a href="#cb40-31" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Error (Real - Predicho)'</span>)</span>
-<span id="cb40-32"><a href="#cb40-32" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Frecuencia'</span>)</span>
-<span id="cb40-33"><a href="#cb40-33" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Distribución de Errores'</span>)</span>
-<span id="cb40-34"><a href="#cb40-34" aria-hidden="true" tabindex="-1"></a>plt.axvline(x<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">'red'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
-<span id="cb40-35"><a href="#cb40-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-36"><a href="#cb40-36" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb40-37"><a href="#cb40-37" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualización por deciles</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">8</span>))</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Boxplot de predicciones por decil real</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>plt.subplot(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">1</span>)</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>results_by_decil.boxplot(column<span class="op">=</span><span class="st">'decil_predicho'</span>, by<span class="op">=</span><span class="st">'decil_real'</span>, ax<span class="op">=</span>plt.gca())</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Predicciones por Decil Real'</span>)</span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Decil Real'</span>)</span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Decil Predicho'</span>)</span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Boxplot de errores por decil real</span></span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>plt.subplot(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span>)</span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a>results_by_decil.boxplot(column<span class="op">=</span><span class="st">'error_abs'</span>, by<span class="op">=</span><span class="st">'decil_real'</span>, ax<span class="op">=</span>plt.gca())</span>
+<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Error Absoluto por Decil Real'</span>)</span>
+<span id="cb38-15"><a href="#cb38-15" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Decil Real'</span>)</span>
+<span id="cb38-16"><a href="#cb38-16" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Error Absoluto'</span>)</span>
+<span id="cb38-17"><a href="#cb38-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-18"><a href="#cb38-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Scatter plot con colores por decil</span></span>
+<span id="cb38-19"><a href="#cb38-19" aria-hidden="true" tabindex="-1"></a>plt.subplot(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span>
+<span id="cb38-20"><a href="#cb38-20" aria-hidden="true" tabindex="-1"></a>scatter <span class="op">=</span> plt.scatter(results_by_decil[<span class="st">'decil_real'</span>], results_by_decil[<span class="st">'decil_predicho'</span>], </span>
+<span id="cb38-21"><a href="#cb38-21" aria-hidden="true" tabindex="-1"></a>                     c<span class="op">=</span>results_by_decil[<span class="st">'decil_real'</span>], cmap<span class="op">=</span><span class="st">'viridis'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb38-22"><a href="#cb38-22" aria-hidden="true" tabindex="-1"></a>plt.plot([<span class="dv">1</span>, <span class="dv">10</span>], [<span class="dv">1</span>, <span class="dv">10</span>], <span class="st">'r--'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb38-23"><a href="#cb38-23" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Decil Real'</span>)</span>
+<span id="cb38-24"><a href="#cb38-24" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Decil Predicho'</span>)</span>
+<span id="cb38-25"><a href="#cb38-25" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Predicciones Coloreadas por Decil'</span>)</span>
+<span id="cb38-26"><a href="#cb38-26" aria-hidden="true" tabindex="-1"></a>plt.colorbar(scatter)</span>
+<span id="cb38-27"><a href="#cb38-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-28"><a href="#cb38-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Histograma de errores</span></span>
+<span id="cb38-29"><a href="#cb38-29" aria-hidden="true" tabindex="-1"></a>plt.subplot(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">4</span>)</span>
+<span id="cb38-30"><a href="#cb38-30" aria-hidden="true" tabindex="-1"></a>plt.hist(results_by_decil[<span class="st">'error'</span>], bins<span class="op">=</span><span class="dv">20</span>, edgecolor<span class="op">=</span><span class="st">'black'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb38-31"><a href="#cb38-31" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Error (Real - Predicho)'</span>)</span>
+<span id="cb38-32"><a href="#cb38-32" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Frecuencia'</span>)</span>
+<span id="cb38-33"><a href="#cb38-33" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Distribución de Errores'</span>)</span>
+<span id="cb38-34"><a href="#cb38-34" aria-hidden="true" tabindex="-1"></a>plt.axvline(x<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">'red'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb38-35"><a href="#cb38-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-36"><a href="#cb38-36" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb38-37"><a href="#cb38-37" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="regresion_hogares_files/figure-html/cell-23-output-1.png" width="1190" height="788" class="figure-img"></p>
+<p><img src="regresion_hogares_files/figure-html/cell-22-output-1.png" width="1190" height="788" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -1075,21 +1135,37 @@ decil_real
 <h2 class="anchored" data-anchor-id="interpretación-de-resultados">Interpretación de Resultados</h2>
 <section id="rendimiento-del-modelo" class="level3">
 <h3 class="anchored" data-anchor-id="rendimiento-del-modelo">Rendimiento del Modelo</h3>
-<p>El modelo de regresión lineal muestra los siguientes resultados:</p>
+<p>El modelo de regresión lineal con preprocesamiento correcto muestra los siguientes resultados:</p>
 <ul>
-<li><strong>R² Score (0.38)</strong>: El modelo explica el 38% de la varianza en los deciles socioeconómicos</li>
-<li><strong>RMSE (1.86)</strong>: Error promedio de aproximadamente 2 deciles</li>
-<li><strong>Rango de predicción</strong>: El modelo predice valores dentro del rango esperado (1-10)</li>
+<li><strong>R² Score (0.393)</strong>: El modelo explica el 39.3% de la varianza en los deciles socioeconómicos</li>
+<li><strong>RMSE (1.84)</strong>: Error promedio de aproximadamente 1.8 deciles<br>
+</li>
+<li><strong>Mejora significativa</strong>: El tratamiento correcto de variables categóricas mejoró el rendimiento predictivo</li>
 </ul>
 </section>
 <section id="factores-socioeconómicos-identificados" class="level3">
 <h3 class="anchored" data-anchor-id="factores-socioeconómicos-identificados">Factores Socioeconómicos Identificados</h3>
-<p>Los factores más importantes para predecir el decil socioeconómico incluyen:</p>
+<p>El análisis con preprocesamiento correcto revela patrones más precisos:</p>
 <ol type="1">
-<li><strong>Características de la vivienda</strong>: Material de paredes, techo y piso</li>
-<li><strong>Servicios básicos</strong>: Acceso a agua, electricidad y alcantarillado</li>
-<li><strong>Ubicación</strong>: Diferencias entre áreas urbanas y rurales</li>
-<li><strong>Tamaño del hogar</strong>: Número de personas y hogares</li>
+<li><strong>Composición del hogar</strong>:
+<ul>
+<li><strong>Total de personas</strong> (coef: -2.65): Hogares más grandes tienden a ser más pobres</li>
+<li><strong>Total de núcleos</strong> (coef: +1.70): Más núcleos familiares indica mejor situación económica</li>
+</ul></li>
+<li><strong>Material del techo</strong> (altamente predictivo):
+<ul>
+<li>Categorías específicas (4, 5, 6, 7, 8) están fuertemente asociadas con pobreza</li>
+<li>El material del techo es el segundo factor más importante después del tamaño del hogar</li>
+</ul></li>
+<li><strong>Acceso a servicios de comunicación</strong>:
+<ul>
+<li><strong>Teléfono fijo</strong>: Ciertas categorías (ausencia o tipo básico) predicen deciles más bajos</li>
+<li>Refleja el acceso a servicios modernos de comunicación</li>
+</ul></li>
+<li><strong>Infraestructura de la vivienda</strong>:
+<ul>
+<li>Materiales de construcción específicos son marcadores claros de nivel socioeconómico</li>
+</ul></li>
 </ol>
 </section>
 <section id="patrones-observados" class="level3">
@@ -1100,32 +1176,31 @@ decil_real
 <li><strong>Deciles altos (8-10)</strong>: Tendencia a subestimar el nivel socioeconómico</li>
 </ul>
 </section>
-<section id="limitaciones-del-modelo" class="level3">
-<h3 class="anchored" data-anchor-id="limitaciones-del-modelo">Limitaciones del Modelo</h3>
+<section id="limitaciones-y-consideraciones-del-modelo" class="level3">
+<h3 class="anchored" data-anchor-id="limitaciones-y-consideraciones-del-modelo">Limitaciones y Consideraciones del Modelo</h3>
+<p>El modelo presenta algunas limitaciones importantes que deben considerarse al interpretar los resultados:</p>
 <ul>
-<li><strong>Varianza no explicada (62%)</strong>: Factores no incluidos en el modelo</li>
-<li><strong>Linealidad</strong>: Relaciones complejas no capturadas por regresión lineal</li>
-<li><strong>Variables categóricas</strong>: Tratamiento simplificado de variables ordinales</li>
+<li><p><strong>Varianza no explicada</strong>: El modelo explica aproximadamente el 39.3% de la variabilidad en los deciles socioeconómicos, lo que significa que existe un 60.7% de varianza que no está siendo capturada. Esto sugiere que hay factores socioeconómicos importantes que no están incluidos en nuestro conjunto de variables, como ingresos familiares, educación, empleo, etc.</p></li>
+<li><p><strong>Simplicidad del modelo lineal</strong>: La regresión lineal asume relaciones lineales entre las variables, pero en la realidad socioeconómica, las relaciones suelen ser más complejas y no lineales.</p></li>
+<li><p><strong>Variables seleccionadas limitadas</strong>: De las 29 características disponibles en el dataset, solo utilizamos 13 variables. Es posible que otras características como ubicación geográfica (provincia, cantón) o variables adicionales de la vivienda podrían mejorar la precisión del modelo.</p></li>
 </ul>
 </section>
 </section>
 <section id="conclusiones" class="level2">
 <h2 class="anchored" data-anchor-id="conclusiones">Conclusiones</h2>
-<ol type="1">
-<li><strong>El modelo identifica patrones socioeconómicos</strong> claros basados en características del hogar</li>
-<li><strong>Factores de infraestructura</strong> (servicios básicos, materiales) son altamente predictivos</li>
-<li><strong>Aplicaciones en política social</strong>: Focalización de programas y asignación de recursos</li>
-<li><strong>Mejoras futuras</strong>: Modelos no lineales y variables adicionales podrían mejorar la precisión</li>
+<ol start="2" type="1">
+<li><p><strong>Material del techo es altamente predictivo</strong>: Las categorías específicas de materiales de construcción son marcadores claros de nivel socioeconómico, siendo el segundo factor más importante</p></li>
+<li><p><strong>Composición del hogar es el factor más crítico</strong>: Hogares con más personas tienden a ser más pobres, mientras que más núcleos familiares indica mejor situación económica</p></li>
+<li><p><strong>Servicios de comunicación reflejan desigualdad</strong>: El acceso a teléfono fijo y su tipo son indicadores importantes del nivel socioeconómico</p></li>
+<li><p><strong>Aplicaciones en política social</strong>: El modelo puede identificar hogares vulnerables basándose en características observables de la vivienda y composición familiar</p></li>
 </ol>
 <section id="implicaciones-prácticas" class="level3">
 <h3 class="anchored" data-anchor-id="implicaciones-prácticas">Implicaciones Prácticas</h3>
 <ul>
 <li><strong>Identificación de vulnerabilidad</strong>: El modelo puede ayudar a identificar hogares en situación de pobreza</li>
 <li><strong>Planificación urbana</strong>: Priorización de inversiones en infraestructura</li>
-<li><strong>Políticas sociales</strong>: Diseño de programas focalizados por nivel socioeconómico</li>
 </ul>
 <hr>
-<p><em>Modelo desarrollado como parte del curso de Machine Learning - Aplicación de técnicas de regresión con datos de encuestas socioeconómicas de Ecuador.</em></p>
 
 
 </section>

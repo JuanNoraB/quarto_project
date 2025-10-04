@@ -314,5 +314,3 @@ Los factores más importantes para predecir siniestros letales incluyen:
 4. **Mejoras futuras**: Balanceo de clases y features adicionales podrían mejorar el recall
 
 ---
-
-*Modelo desarrollado como parte del curso de Machine Learning - Aplicación de técnicas de clasificación binaria con datos abiertos de Ecuador.*

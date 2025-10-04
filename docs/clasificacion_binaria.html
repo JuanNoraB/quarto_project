@@ -231,7 +231,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="carga-y-exploración-del-dataset" class="level2">
 <h2 class="anchored" data-anchor-id="carga-y-exploración-del-dataset">Carga y Exploración del Dataset</h2>
-<div id="b3ebf3e2" class="cell" data-execution_count="1">
+<div id="7f07e5ed" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -260,7 +260,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code>=== SISTEMA DE CLASIFICACIÓN BINARIA - SINIESTROS LETALES ===</code></pre>
 </div>
 </div>
-<div id="0599a7e1" class="cell" data-execution_count="2">
+<div id="f35136ae" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Cargar datos</span></span>
@@ -374,7 +374,7 @@ Primeras 5 filas:</code></pre>
 </div>
 </div>
 </div>
-<div id="83fde787" class="cell" data-execution_count="3">
+<div id="7ffab9fc" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exploración inicial</span></span>
@@ -407,7 +407,7 @@ dtype: int64</code></pre>
 </section>
 <section id="definición-de-la-variable-objetivo" class="level2">
 <h2 class="anchored" data-anchor-id="definición-de-la-variable-objetivo">Definición de la Variable Objetivo</h2>
-<div id="695b386f" class="cell" data-execution_count="4">
+<div id="1cba6096" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear variable objetivo binaria</span></span>
@@ -446,7 +446,7 @@ Porcentaje de siniestros letales: 8.01%</code></pre>
 </section>
 <section id="preparación-de-features" class="level2">
 <h2 class="anchored" data-anchor-id="preparación-de-features">Preparación de Features</h2>
-<div id="8e3478a5" class="cell" data-execution_count="5">
+<div id="30975b4d" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== PREPARANDO FEATURES ==="</span>)</span>
@@ -486,7 +486,7 @@ Features numéricas: ['HORA_NUM']</code></pre>
 </section>
 <section id="división-de-datos" class="level2">
 <h2 class="anchored" data-anchor-id="división-de-datos">División de Datos</h2>
-<div id="67c70a1e" class="cell" data-execution_count="6">
+<div id="1e357297" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== DIVIDIENDO DATOS ==="</span>)</span>
@@ -512,7 +512,7 @@ Name: SINIESTRO_LETAL, dtype: float64</code></pre>
 </section>
 <section id="definición-y-entrenamiento-del-modelo" class="level2">
 <h2 class="anchored" data-anchor-id="definición-y-entrenamiento-del-modelo">Definición y Entrenamiento del Modelo</h2>
-<div id="98b6050b" class="cell" data-execution_count="7">
+<div id="7f809a17" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== CREANDO PIPELINE ==="</span>)</span>
@@ -543,7 +543,7 @@ Entrenando modelo LogisticRegression...
 </section>
 <section id="generación-de-predicciones" class="level2">
 <h2 class="anchored" data-anchor-id="generación-de-predicciones">Generación de Predicciones</h2>
-<div id="07aa7e8d" class="cell" data-execution_count="8">
+<div id="4df5600e" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== REALIZANDO PREDICCIONES ==="</span>)</span>
@@ -566,7 +566,7 @@ dtype: int64</code></pre>
 </section>
 <section id="evaluación-del-modelo" class="level2">
 <h2 class="anchored" data-anchor-id="evaluación-del-modelo">Evaluación del Modelo</h2>
-<div id="f1758025" class="cell" data-execution_count="9">
+<div id="d3529a80" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== EVALUACIÓN DEL MODELO ==="</span>)</span>
@@ -601,7 +601,7 @@ Precision 0.661017 De los predichos como letales, 66.1% son realmente letales
   ROC-AUC 0.812082                         Capacidad de discriminación: 0.812</code></pre>
 </div>
 </div>
-<div id="71de3e93" class="cell" data-execution_count="10">
+<div id="c5c5b171" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Reporte de clasificación detallado:"</span>)</span>
@@ -626,7 +626,7 @@ weighted avg       0.91      0.92      0.90      4919
 <h2 class="anchored" data-anchor-id="visualizaciones">Visualizaciones</h2>
 <section id="matriz-de-confusión" class="level3">
 <h3 class="anchored" data-anchor-id="matriz-de-confusión">Matriz de Confusión</h3>
-<div id="b371b9ae" class="cell" data-execution_count="11">
+<div id="ef2407aa" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">6</span>))</span>
@@ -651,7 +651,7 @@ weighted avg       0.91      0.92      0.90      4919
 </section>
 <section id="curva-roc" class="level3">
 <h3 class="anchored" data-anchor-id="curva-roc">Curva ROC</h3>
-<div id="c1a59d31" class="cell" data-execution_count="12">
+<div id="77f4caeb" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">6</span>))</span>
@@ -679,7 +679,7 @@ weighted avg       0.91      0.92      0.90      4919
 </section>
 <section id="distribución-de-probabilidades" class="level3">
 <h3 class="anchored" data-anchor-id="distribución-de-probabilidades">Distribución de Probabilidades</h3>
-<div id="9cab484f" class="cell" data-execution_count="13">
+<div id="5a215113" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
@@ -705,7 +705,7 @@ weighted avg       0.91      0.92      0.90      4919
 </section>
 <section id="análisis-de-importancia-de-features" class="level2">
 <h2 class="anchored" data-anchor-id="análisis-de-importancia-de-features">Análisis de Importancia de Features</h2>
-<div id="a89e64f5" class="cell" data-execution_count="14">
+<div id="94b610d4" class="cell" data-execution_count="14">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Importancia de features (coeficientes del modelo logístico)</span></span>
@@ -741,7 +741,7 @@ weighted avg       0.91      0.92      0.90      4919
 122                      CANTON_MONTECRISTI    -1.237940         1.237940</code></pre>
 </div>
 </div>
-<div id="0325d12e" class="cell" data-execution_count="15">
+<div id="27bc619b" class="cell" data-execution_count="15">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualizar top features</span></span>
@@ -805,7 +805,6 @@ weighted avg       0.91      0.92      0.90      4919
 <li><strong>Mejoras futuras</strong>: Balanceo de clases y features adicionales podrían mejorar el recall</li>
 </ol>
 <hr>
-<p><em>Modelo desarrollado como parte del curso de Machine Learning - Aplicación de técnicas de clasificación binaria con datos abiertos de Ecuador.</em></p>
 
 
 </section>

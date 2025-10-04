@@ -50,37 +50,29 @@ print(f"Columnas disponibles: {list(df.columns)}")
 ```
 
 ```{python}
-# Cargar diccionario de variables
-try:
-    import openpyxl
-    dict_df = pd.read_excel('DATOS_REGRESSION/urs_hogares_dd_2025enero.xlsx', 
-                           sheet_name='Hoja1', engine='openpyxl')
-    print("✓ Diccionario de variables cargado exitosamente")
-    
-    # Crear mapeo de códigos a nombres
-    variable_mapping = {}
-    for _, row in dict_df.iterrows():
-        if pd.notna(row.iloc[0]) and pd.notna(row.iloc[1]):
-            codigo = str(row.iloc[0]).strip()
-            descripcion = str(row.iloc[1]).strip()
-            variable_mapping[codigo] = descripcion
-    
-    print(f"Mapeo creado para {len(variable_mapping)} variables")
-    
-except Exception as e:
-    print(f"Error cargando diccionario: {e}")
-    variable_mapping = {}
-```
+# Diccionario de variables conocidas
+variable_mapping = {
+    'decil': 'Decil socioeconómico del hogar (1=más pobre, 10=más rico)',
+    'tipo_pob_rs18': 'Tipo de pobreza del hogar',
+    'tot_hogares': 'Total de hogares en el área',
+    'tot_nucleos': 'Total de núcleos familiares',
+    'tot_personas': 'Total de personas en el hogar',
+    's1_id03': 'Código de área (1=Urbano, 0=Rural)',
+    's3_vi01': 'Tipo de vivienda',
+    's3_vi03': 'Material predominante del piso',
+    's3_vi04': 'Material predominante del techo',
+    's3_vi05': 'Material predominante de las paredes',
+    's4_ho01': 'Procedencia principal del agua',
+    's4_ho06': 'Tipo de servicio eléctrico',
+    's4_ho08': 'Tipo de servicio higiénico',
+    's4_ho12': 'Servicio telefónico convencional',
+    's4_ho16': 'Eliminación de la basura',
+    's4_ho17': 'Combustible para cocinar'
+}
 
-```{python}
-# Mostrar mapeo de variables clave
-print("=== MAPEO DE VARIABLES PRINCIPALES ===")
-key_vars = ['decil', 'pobreza', 'area', 'tot_hog', 'tot_per', 'pared', 'techo', 'piso']
-for var in key_vars:
-    if var in variable_mapping:
-        print(f"{var}: {variable_mapping[var]}")
-    else:
-        print(f"{var}: (descripción no encontrada)")
+print("=== DICCIONARIO DE VARIABLES ===")
+for var, desc in variable_mapping.items():
+    print(f"{var}: {desc}")
 ```
 
 ## Exploración de Datos
@@ -141,32 +133,41 @@ else:
 ```
 
 ```{python}
-print("=== SELECCIONANDO FEATURES ===")
+print("=== SELECCIONANDO Y CLASIFICANDO FEATURES ===")
 # Primero ver todas las columnas disponibles
 print("Columnas disponibles en el dataset:")
 print(list(df.columns))
 
-# Seleccionar features basadas en las columnas reales del dataset
-feature_columns = [
+# Clasificar features por tipo de datos
+numerical_features = [
     'tot_hogares',   # Total de hogares
     'tot_nucleos',   # Total de núcleos familiares
-    'tot_personas',  # Total de personas
-    's3_vi01',       # Área (urbano/rural)
-    's3_vi03',       # Material de piso
-    's3_vi04',       # Material de techo  
-    's3_vi05',       # Material de pared
-    's4_ho01',       # Acceso a agua
-    's4_ho06',       # Acceso a electricidad
-    's4_ho08',       # Acceso a alcantarillado
-    's4_ho12',       # Acceso a teléfono
-    's4_ho16',       # Recolección de basura
-    's4_ho17'        # Tipo de cocina
+    'tot_personas'   # Total de personas
 ]
 
+categorical_features = [
+    's3_vi01',       # Tipo de vivienda
+    's3_vi03',       # Material de piso
+    's3_vi04',       # Material de techo  
+    's3_vi05',       # Material de paredes
+    's4_ho01',       # Procedencia del agua
+    's4_ho06',       # Servicio eléctrico
+    's4_ho08',       # Servicio higiénico
+    's4_ho12',       # Teléfono convencional
+    's4_ho16',       # Eliminación de basura
+    's4_ho17'        # Combustible para cocinar
+]
+
+all_features = numerical_features + categorical_features
+
 # Verificar qué columnas existen
-available_features = [col for col in feature_columns if col in df.columns]
-print(f"Features disponibles: {available_features}")
-print(f"Features no encontradas: {set(feature_columns) - set(available_features)}")
+available_numerical = [col for col in numerical_features if col in df.columns]
+available_categorical = [col for col in categorical_features if col in df.columns]
+available_features = available_numerical + available_categorical
+
+print(f"Features numéricas disponibles: {available_numerical}")
+print(f"Features categóricas disponibles: {available_categorical}")
+print(f"Total features: {len(available_features)}")
 ```
 
 ## Preparación de Datos
@@ -191,6 +192,8 @@ y = model_data[target_col]
 
 print(f"Forma final de X: {X.shape}")
 print(f"Forma final de y: {y.shape}")
+print(f"Features numéricas: {available_numerical}")
+print(f"Features categóricas: {available_categorical}")
 ```
 
 ```{python}
@@ -221,14 +224,26 @@ print(f"Desviación estándar: {y_train.std():.2f}")
 
 ```{python}
 print("=== CREANDO PIPELINE DE REGRESIÓN ===")
-# Pipeline con escalado y regresión lineal
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder
+
+# Crear pipeline de preprocesamiento correcto
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('num', StandardScaler(), available_numerical),
+        ('cat', OneHotEncoder(drop='first', handle_unknown='ignore'), available_categorical)
+    ])
+
+# Pipeline completo con preprocesamiento adecuado
 pipeline = Pipeline([
-    ('scaler', StandardScaler()),
+    ('preprocessor', preprocessor),
     ('regressor', LinearRegression())
 ])
 
 # Entrenar modelo
-print("Entrenando modelo LinearRegression...")
+print("Entrenando modelo LinearRegression con preprocesamiento correcto...")
+print(f"Variables numéricas: {available_numerical}")
+print(f"Variables categóricas: {available_categorical}")
 pipeline.fit(X_train, y_train)
 print("✓ Modelo entrenado exitosamente")
 ```
@@ -358,8 +373,12 @@ plt.show()
 
 ```{python}
 print("=== ANÁLISIS DE IMPORTANCIA DE FEATURES ===")
-# Obtener coeficientes del modelo
-feature_names = available_features
+# Obtener nombres de features después del preprocesamiento
+feature_names = (available_numerical + 
+                list(pipeline.named_steps['preprocessor']
+                    .named_transformers_['cat']
+                    .get_feature_names_out(available_categorical)))
+
 coefficients = pipeline.named_steps['regressor'].coef_
 
 # Crear DataFrame con importancias
@@ -369,12 +388,43 @@ feature_importance = pd.DataFrame({
     'abs_coefficient': np.abs(coefficients)
 }).sort_values('abs_coefficient', ascending=False)
 
-print("Importancia de features (coeficientes):")
-for _, row in feature_importance.iterrows():
+# Mapeo de nombres descriptivos para interpretación
+feature_descriptions = {
+    'tot_personas': 'Total de personas en el hogar',
+    'tot_nucleos': 'Total de núcleos familiares', 
+    'tot_hogares': 'Total de hogares en el área'
+}
+
+print("Top 15 features más importantes:")
+for _, row in feature_importance.head(15).iterrows():
     var_name = row['feature']
     coef = row['coefficient']
-    description = variable_mapping.get(var_name, 'Sin descripción')
-    print(f"{var_name:12} | {coef:8.3f} | {description}")
+    
+    # Descripción más clara para variables categóricas
+    if var_name in feature_descriptions:
+        description = feature_descriptions[var_name]
+    elif 's3_vi03' in var_name:
+        description = f'Material del piso (categoría {var_name.split("_")[-1]})'
+    elif 's3_vi04' in var_name:
+        description = f'Material del techo (categoría {var_name.split("_")[-1]})'
+    elif 's3_vi05' in var_name:
+        description = f'Material de paredes (categoría {var_name.split("_")[-1]})'
+    elif 's4_ho01' in var_name:
+        description = f'Procedencia del agua (categoría {var_name.split("_")[-1]})'
+    elif 's4_ho06' in var_name:
+        description = f'Servicio eléctrico (categoría {var_name.split("_")[-1]})'
+    elif 's4_ho08' in var_name:
+        description = f'Servicio higiénico (categoría {var_name.split("_")[-1]})'
+    elif 's4_ho12' in var_name:
+        description = f'Teléfono fijo (categoría {var_name.split("_")[-1]})'
+    elif 's4_ho16' in var_name:
+        description = f'Recolección de basura (categoría {var_name.split("_")[-1]})'
+    elif 's4_ho17' in var_name:
+        description = f'Combustible para cocinar (categoría {var_name.split("_")[-1]})'
+    else:
+        description = 'Variable del hogar'
+    
+    print(f"{var_name:25} | {coef:8.3f} | {description}")
 ```
 
 ```{python}
@@ -460,20 +510,30 @@ plt.show()
 
 ### Rendimiento del Modelo
 
-El modelo de regresión lineal muestra los siguientes resultados:
+El modelo de regresión lineal con preprocesamiento correcto muestra los siguientes resultados:
 
-- **R² Score (0.38)**: El modelo explica el 38% de la varianza en los deciles socioeconómicos
-- **RMSE (1.86)**: Error promedio de aproximadamente 2 deciles
-- **Rango de predicción**: El modelo predice valores dentro del rango esperado (1-10)
+- **R² Score (0.393)**: El modelo explica el 39.3% de la varianza en los deciles socioeconómicos
+- **RMSE (1.84)**: Error promedio de aproximadamente 1.8 deciles  
+- **Mejora significativa**: El tratamiento correcto de variables categóricas mejoró el rendimiento predictivo
 
 ### Factores Socioeconómicos Identificados
 
-Los factores más importantes para predecir el decil socioeconómico incluyen:
+El análisis con preprocesamiento correcto revela patrones más precisos:
 
-1. **Características de la vivienda**: Material de paredes, techo y piso
-2. **Servicios básicos**: Acceso a agua, electricidad y alcantarillado
-3. **Ubicación**: Diferencias entre áreas urbanas y rurales
-4. **Tamaño del hogar**: Número de personas y hogares
+1. **Composición del hogar**: 
+   - **Total de personas** (coef: -2.65): Hogares más grandes tienden a ser más pobres
+   - **Total de núcleos** (coef: +1.70): Más núcleos familiares indica mejor situación económica
+
+2. **Material del techo** (altamente predictivo):
+   - Categorías específicas (4, 5, 6, 7, 8) están fuertemente asociadas con pobreza
+   - El material del techo es el segundo factor más importante después del tamaño del hogar
+
+3. **Acceso a servicios de comunicación**:
+   - **Teléfono fijo**: Ciertas categorías (ausencia o tipo básico) predicen deciles más bajos
+   - Refleja el acceso a servicios modernos de comunicación
+
+4. **Infraestructura de la vivienda**: 
+   - Materiales de construcción específicos son marcadores claros de nivel socioeconómico
 
 ### Patrones Observados
 
@@ -481,25 +541,31 @@ Los factores más importantes para predecir el decil socioeconómico incluyen:
 - **Deciles medios (4-7)**: Mayor variabilidad en las predicciones
 - **Deciles altos (8-10)**: Tendencia a subestimar el nivel socioeconómico
 
-### Limitaciones del Modelo
+### Limitaciones y Consideraciones del Modelo
 
-- **Varianza no explicada (62%)**: Factores no incluidos en el modelo
-- **Linealidad**: Relaciones complejas no capturadas por regresión lineal
-- **Variables categóricas**: Tratamiento simplificado de variables ordinales
+El modelo presenta algunas limitaciones importantes que deben considerarse al interpretar los resultados:
+
+- **Varianza no explicada**: El modelo explica aproximadamente el 39.3% de la variabilidad en los deciles socioeconómicos, lo que significa que existe un 60.7% de varianza que no está siendo capturada. Esto sugiere que hay factores socioeconómicos importantes que no están incluidos en nuestro conjunto de variables, como ingresos familiares, educación, empleo, etc.
+
+- **Simplicidad del modelo lineal**: La regresión lineal asume relaciones lineales entre las variables, pero en la realidad socioeconómica, las relaciones suelen ser más complejas y no lineales.
+
+- **Variables seleccionadas limitadas**: De las 29 características disponibles en el dataset, solo utilizamos 13 variables. Es posible que otras características como ubicación geográfica (provincia, cantón) o variables adicionales de la vivienda podrían mejorar la precisión del modelo.
+
 
 ## Conclusiones
 
-1. **El modelo identifica patrones socioeconómicos** claros basados en características del hogar
-2. **Factores de infraestructura** (servicios básicos, materiales) son altamente predictivos
-3. **Aplicaciones en política social**: Focalización de programas y asignación de recursos
-4. **Mejoras futuras**: Modelos no lineales y variables adicionales podrían mejorar la precisión
+
+2. **Material del techo es altamente predictivo**: Las categorías específicas de materiales de construcción son marcadores claros de nivel socioeconómico, siendo el segundo factor más importante
+
+3. **Composición del hogar es el factor más crítico**: Hogares con más personas tienden a ser más pobres, mientras que más núcleos familiares indica mejor situación económica
+
+4. **Servicios de comunicación reflejan desigualdad**: El acceso a teléfono fijo y su tipo son indicadores importantes del nivel socioeconómico
+
+5. **Aplicaciones en política social**: El modelo puede identificar hogares vulnerables basándose en características observables de la vivienda y composición familiar
 
 ### Implicaciones Prácticas
 
 - **Identificación de vulnerabilidad**: El modelo puede ayudar a identificar hogares en situación de pobreza
 - **Planificación urbana**: Priorización de inversiones en infraestructura
-- **Políticas sociales**: Diseño de programas focalizados por nivel socioeconómico
 
 ---
-
-*Modelo desarrollado como parte del curso de Machine Learning - Aplicación de técnicas de regresión con datos de encuestas socioeconómicas de Ecuador.*
