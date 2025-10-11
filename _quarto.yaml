@@ -16,6 +16,8 @@ website:
         text: Clasificación Binaria
       - href: regresion_hogares.qmd
         text: Regresión Hogares
+      - href: Landos.qmd
+        text: Clasificación Tweets
  
 format:
   html:

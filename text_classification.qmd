@@ -1,0 +1,93 @@
+---
+title: "Text Classification"
+code-fold: false
+---
+
+# Importar librerías
+```{python}
+from sklearn.feature_extraction.text import CountVectorizer #BoW
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import classification_report
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.datasets import fetch_20newsgroups
+import pandas as pd
+import nltk
+from nltk.corpus import stopwords
+from nltk import word_tokenize # tokenizacion
+from nltk import pos_tag #lematizacion
+from nltk.stem import WordNetLemmatizer
+from nltk.corpus import wordnet
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+#stop words
+lemmatizer = WordNetLemmatizer()
+
+nltk.download('stopwords') # necessary for removal of stop words
+nltk.download('wordnet') # necessary for lemmatization
+```
+
+# cargar dataset
+```{python}
+
+categories = ['comp.graphics','comp.sys.mac.hardware','rec.sport.baseball','talk.politics.misc']
+newsgroups = fetch_20newsgroups(subset='train',categories=categories,remove=('headers','footers','quotes'))
+print(newsgroups.target_names)
+
+#fin
+```
+
+# Features and target
+```{python}
+X = newsgroups.data
+y = newsgroups.target
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+stop_words = stopwords.words('english')
+vectoizer = TfidfVectorizer(stop_words=stop_words)
+vectoizer = CountVectorizer(stop_words=stop_words)
+
+naive_bayes = MultinomialNB()
+#pipelline 
+pipe = Pipeline([
+      ("vectorizacion",vectoizer),
+      ("naive_bayes",naive_bayes)
+])
+
+#end script
+```
+
+#entrenamiento
+```{python}
+pipe.fit(X_train,y_train)
+```
+
+#predicción
+```{python}
+y_pred = pipe.predict(X_test)
+```
+
+#reporte
+```{python}
+#track the name of the categories
+print(classification_report(y_test,y_pred,target_names=newsgroups.target_names))
+```
+
+# Matriz de confusión
+
+```{python}
+from sklearn.metrics import ConfusionMatrixDisplay
+disp = ConfusionMatrixDisplay(confusion_matrix(y_test,y_pred),display_labels=newsgroups.target_names)
+disp.plot()
+plt.xticks(rotation=90)
+plt.tight_layout()
+plt.show()
+```
+
+
+
+
+
+

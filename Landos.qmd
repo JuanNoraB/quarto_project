@@ -1,0 +1,313 @@
+---
+title: "Clasificación de Tweets - Predicción de Popularidad"
+author: "Juan Brito"
+date: today
+format:
+  html:
+    code-fold: false
+    toc: true
+    theme: cosmo
+jupyter: python3
+---
+
+# Introducción
+
+Predicción del nivel de popularidad de usuarios de Twitter basándose en el contenido de sus tweets.
+
+**Hipótesis:** El estilo de escritura revela información sobre la popularidad del autor.
+
+# 1. Carga de Datos
+
+```{python}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import re
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import (
+    classification_report, 
+    confusion_matrix, 
+    ConfusionMatrixDisplay,
+    accuracy_score,
+    precision_recall_fscore_support
+)
+
+plt.style.use('seaborn-v0_8-darkgrid')
+sns.set_palette("husl")
+
+df = pd.read_csv('data_twwet/tweets_totales_con_sentimiento_ml.csv')
+print(f"Total registros: {len(df):,}")
+print(f"Autores únicos: {df['authorId'].nunique():,}")
+```
+
+# 2. Creación del Target
+
+```{python}
+# Agrupar por autor para evitar duplicación
+author_stats = df.groupby('authorId').agg({
+    'authorFollowers': 'max'
+}).reset_index()
+
+print(f"Mediana seguidores: {author_stats['authorFollowers'].median():.0f}")
+print(f"Media seguidores: {author_stats['authorFollowers'].mean():.0f}")
+
+# Percentiles
+p33 = author_stats['authorFollowers'].quantile(0.33)
+p66 = author_stats['authorFollowers'].quantile(0.66)
+
+print(f"\nUmbrales:")
+print(f"BAJA: < {p33:.0f} seguidores")
+print(f"MEDIA: {p33:.0f} - {p66:.0f} seguidores")
+print(f"ALTA: > {p66:.0f} seguidores")
+
+def classify_popularity(followers):
+    if followers < p33:
+        return 'BAJA'
+    elif followers < p66:
+        return 'MEDIA'
+    else:
+        return 'ALTA'
+
+df['user_popularity'] = df['authorFollowers'].apply(classify_popularity)
+print(f"\nAutores por clase:")
+print(df.groupby('user_popularity')['authorId'].nunique())
+```
+
+# 3. Visualización del Target
+
+```{python}
+target_counts = df['user_popularity'].value_counts()
+colors = ['#FF6B6B', '#4ECDC4', '#45B7D1']
+
+fig, ax = plt.subplots(figsize=(10, 6))
+bars = ax.bar(target_counts.index, target_counts.values, color=colors, alpha=0.8, edgecolor='black')
+ax.set_title('Distribución de Clases', fontweight='bold', fontsize=14)
+ax.set_xlabel('Nivel de Popularidad', fontweight='bold')
+ax.set_ylabel('Cantidad de Tweets', fontweight='bold')
+ax.grid(axis='y', alpha=0.3)
+
+for bar in bars:
+    height = bar.get_height()
+    ax.text(bar.get_x() + bar.get_width()/2., height,
+            f'{int(height):,}\n({height/len(df)*100:.1f}%)',
+            ha='center', va='bottom', fontweight='bold')
+
+plt.tight_layout()
+plt.show()
+```
+
+# 4. Selección de Features
+
+**Features seleccionadas:**
+
+- ✅ content (texto del tweet - TF-IDF)
+- ✅ account_age_days
+- ✅ content_length
+- ✅ mentions_count
+- ✅ time_response
+- ✅ sentiment_polarity
+
+**Features eliminadas:**
+
+-  authorFollowers (base del target)
+-  hashtags_count (todos 0)
+-  source (todos iguales)
+
+```{python}
+df_filtered = df[df['has_profile_picture'] == True].copy()
+df_filtered = df_filtered.dropna(subset=['content', 'account_age_days', 'sentiment_polarity'])
+print(f"Registros finales: {len(df_filtered):,}")
+```
+
+# 5. Preprocesamiento de Texto
+
+```{python}
+def clean_text(text):
+    text = re.sub(r'https?://\S+|www\.\S+', '', text)
+    text = re.sub(r'@\w+', '', text)
+    text = text.lower()
+    text = re.sub(r'\s+', ' ', text)
+    return text.strip()
+
+df_filtered['content_clean'] = df_filtered['content'].apply(clean_text)
+
+print("Ejemplo:")
+idx = 5
+print(f"Original: {df_filtered.iloc[idx]['content'][:70]}...")
+print(f"Limpio: {df_filtered.iloc[idx]['content_clean'][:70]}...")
+```
+
+# 6. Preparación de Datos
+
+```{python}
+feature_columns = [
+    'content_clean',
+    'account_age_days',
+    'content_length',
+    'mentions_count',
+    'time_response',
+    'sentiment_polarity'
+]
+
+X = df_filtered[feature_columns].copy()
+y = df_filtered['user_popularity'].copy()
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+print(f"Train: {len(X_train):,} ({len(X_train)/len(X)*100:.1f}%)")
+print(f"Test: {len(X_test):,} ({len(X_test)/len(X)*100:.1f}%)")
+```
+
+# 7. Pipeline y Entrenamiento
+
+```{python}
+# Cargar stopwords en español desde NLTK
+import nltk
+nltk.download('stopwords', quiet=True)
+from nltk.corpus import stopwords
+spanish_stopwords = stopwords.words('spanish')
+
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('text', TfidfVectorizer(
+            max_features=1000, 
+            ngram_range=(1, 2),
+            stop_words=spanish_stopwords,
+            min_df=5
+        ), 'content_clean'),
+        ('num', StandardScaler(), [
+            'account_age_days', 
+            'content_length', 
+            'mentions_count', 
+            'time_response', 
+            'sentiment_polarity'
+        ])
+    ],
+    verbose_feature_names_out=False
+)
+
+pipeline = Pipeline([
+    ('preprocessor', preprocessor),
+    ('classifier', LogisticRegression(
+        max_iter=1000, 
+        random_state=42,
+        class_weight='balanced'
+    ))
+])
+
+print("Entrenando modelo...")
+pipeline.fit(X_train, y_train)
+y_pred_train = pipeline.predict(X_train)
+y_pred_test = pipeline.predict(X_test)
+print("Entrenamiento completado")
+```
+
+# 8. Evaluación
+
+```{python}
+train_acc = accuracy_score(y_train, y_pred_train)
+test_acc = accuracy_score(y_test, y_pred_test)
+
+print(f"ACCURACY:")
+print(f"Train: {train_acc:.4f} ({train_acc*100:.2f}%)")
+print(f"Test: {test_acc:.4f} ({test_acc*100:.2f}%)")
+print(f"\nSupera baseline (33.3%) por {(test_acc-0.333)*100:.1f} puntos")
+```
+
+```{python}
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred_test))
+```
+
+# 9. Visualización: Matriz de Confusión
+
+```{python}
+cm = confusion_matrix(y_test, y_pred_test, labels=['BAJA', 'MEDIA', 'ALTA'])
+
+fig, ax = plt.subplots(figsize=(8, 6))
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['BAJA', 'MEDIA', 'ALTA'])
+disp.plot(ax=ax, cmap='Blues', values_format='d', colorbar=True)
+ax.set_title('Matriz de Confusión', fontweight='bold', fontsize=14)
+ax.grid(False)
+plt.tight_layout()
+plt.show()
+```
+
+# 10. Visualización: Métricas por Clase
+
+```{python}
+precision, recall, f1, support = precision_recall_fscore_support(
+    y_test, y_pred_test, labels=['BAJA', 'MEDIA', 'ALTA']
+)
+
+x = np.arange(3)
+width = 0.25
+
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.bar(x - width, precision, width, label='Precision', alpha=0.8, color='#FF6B6B')
+ax.bar(x, recall, width, label='Recall', alpha=0.8, color='#4ECDC4')
+ax.bar(x + width, f1, width, label='F1-Score', alpha=0.8, color='#45B7D1')
+
+ax.set_xlabel('Clase', fontweight='bold')
+ax.set_ylabel('Score', fontweight='bold')
+ax.set_title('Métricas por Clase', fontweight='bold', fontsize=14)
+ax.set_xticks(x)
+ax.set_xticklabels(['BAJA', 'MEDIA', 'ALTA'])
+ax.legend()
+ax.set_ylim(0, 1.1)
+ax.grid(axis='y', alpha=0.3)
+plt.tight_layout()
+plt.show()
+```
+
+# 11. Visualización: Features Numéricas
+
+```{python}
+feature_stats = X_train[['content_length', 'mentions_count', 'account_age_days']].describe().loc['mean']
+
+fig, ax = plt.subplots(figsize=(10, 6))
+bars = ax.barh(range(3), feature_stats.values, alpha=0.8, 
+               color=['#FF6B6B', '#4ECDC4', '#45B7D1'], edgecolor='black')
+ax.set_yticks(range(3))
+ax.set_yticklabels(['Largo Contenido', 'Menciones', 'Edad Cuenta (días)'])
+ax.set_xlabel('Valor Promedio', fontweight='bold')
+ax.set_title('Estadísticas de Features', fontweight='bold', fontsize=14)
+ax.grid(axis='x', alpha=0.3)
+
+for i, (bar, val) in enumerate(zip(bars, feature_stats.values)):
+    ax.text(val, bar.get_y() + bar.get_height()/2., 
+            f'{val:.0f}', ha='left', va='center', fontweight='bold')
+
+plt.tight_layout()
+plt.show()
+```
+
+# 12. Conclusiones
+
+## Resultados
+
+- **Accuracy Test**: ~56% (supera baseline 33.3%)
+- **Mejor predicha**: BAJA (recall ~0.81)
+- **Más difícil**: MEDIA (recall ~0.26)
+
+## Interpretación
+
+El estilo de escritura **SÍ contiene información** sobre popularidad:
+
+- Usuarios con BAJA popularidad: patrones distintivos
+- Clase MEDIA: difícil de diferenciar
+- Usuarios ALTA: moderadamente distinguibles
+
+## Aplicaciones
+
+- Identificar cuentas influyentes por contenido
+- Detectar patrones de popularidad
+- Segmentación de usuarios

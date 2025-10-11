@@ -1,0 +1,89 @@
+
+```{python}
+import pandas as pd
+import requests
+import nltk
+# downloading some additional packages and corpora
+nltk.download('punkt', quiet=True) # necessary for tokenization
+nltk.download('punkt_tab', quiet=True) # necessary for tokenization
+nltk.download('wordnet', quiet=True) # necessary for lemmatization
+nltk.download('stopwords', quiet=True) # necessary for removal of stop words
+nltk.download('averaged_perceptron_tagger', quiet=True) # necessary for POS tagging
+nltk.download('averaged_perceptron_tagger_eng', quiet=True) # necessary for POS tagging
+nltk.download('maxent_ne_chunker', quiet=True) # necessary for entity extraction
+nltk.download('omw-1.4', quiet=True) # necessary for lemmatization
+nltk.download('words', quiet=True)
+print("NLTK resources downloaded successfully")
+
+```
+# Cargar datos
+
+```{python}
+url = "https://raw.githubusercontent.com/erickedu85/dataset/master/story.txt"
+
+r = requests.get(url)
+
+r.encoding = 'utf-8'
+story = r.text
+print(story[:20])
+print('este fue el texto')
+
+```
+
+# Tokenización
+```{python}
+from nltk import word_tokenize,pos_tag
+
+words = word_tokenize(story)
+words[:20]
+```
+
+
+# Striming and Lemmatización
+
+```{python}
+
+from nltk.stem import PorterStemmer as stemmer
+from nltk.stem import WordNetLemmatizer as lemmatizer
+from nltk.corpus import wordnet
+
+palabra = 'changing'
+print("palabra:",palabra)
+#steaming
+print("stemming:",stemmer().stem(palabra))
+
+#lemmatización
+print("lemmatización:",lemmatizer().lemmatize(palabra,pos= wordnet.VERB))
+```
+
+# PART OF SPEECH - POS TAG
+```{python}
+from nltk import pos_tag
+pos_tag(words[:20])
+```
+
+# Stop words
+```{python}
+
+from nltk.corpus import stopwords as stop
+stopwords = stop.words('english')
+stopwords[:20]
+
+#fin de script
+```
+
+# stop words in story
+```{python}
+tokens = nltk.word_tokenize(story.lower())
+
+#limpieza de nuemero
+lettertokens = [token for token in tokens if token.isalpha()]
+
+without_stopwords = [token for token in lettertokens if token not in stopwords]
+without_stopwords[:20]
+
+#fin de script
+```
+
+
+

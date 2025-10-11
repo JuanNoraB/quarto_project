@@ -1,0 +1,54 @@
+---
+title: "Clasificación de Tweets: Predicción de Popularidad de Usuarios"
+author: "Juan Nora"
+date: today
+format:
+  html:
+    code-fold: false
+    toc: true
+    toc-depth: 3
+    theme: cosmo
+jupyter: python3
+---
+
+# Introducción
+
+Este análisis tiene como objetivo **predecir el nivel de popularidad de usuarios de Twitter** basándose en el contenido de sus tweets y características asociadas. Utilizamos técnicas de Machine Learning para clasificación de texto y análisis de patrones de comportamiento.
+
+**Hipótesis:** El estilo de escritura y las características de los tweets pueden revelar información sobre la popularidad del autor (medida por número de seguidores).
+
+# 1. Carga y Exploración del Dataset
+
+```{python}
+#| label: setup
+#| echo: true
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import re
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import (
+    classification_report, 
+    confusion_matrix, 
+    ConfusionMatrixDisplay,
+    accuracy_score,
+    precision_recall_fscore_support
+)
+
+# Configuración de visualización
+plt.style.use('seaborn-v0_8-darkgrid')
+sns.set_palette("husl")
+
+# Cargar dataset
+df = pd.read_csv('data_twwet/tweets_totales_con_sentimiento_ml.csv')
+
+print(f"Total de registros: {len(df):,}")
+print(f"Autores únicos: {df['authorId'].nunique():,}")
+print(f"Periodo: {df['createdAt'].min()} a {df['createdAt'].max()}")
