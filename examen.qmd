@@ -664,9 +664,16 @@ plt.show()
 ```{python}
 #| label: clustering
 
+import os
+os.environ['OMP_NUM_THREADS'] = '1'
+os.environ['OPENBLAS_NUM_THREADS'] = '1'
+os.environ['MKL_NUM_THREADS'] = '1'
+
 from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.decomposition import PCA
 from sklearn.metrics import silhouette_score
+import warnings
+warnings.filterwarnings('ignore', category=Warning)
 
 # Método 1: Elbow (Codo) - Incluir K=1
 print("\nMétodo 1: Elbow (Inercia)")
