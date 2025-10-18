@@ -230,7 +230,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="carga-de-datos" class="level1">
 <h1>1. Carga de Datos</h1>
-<div id="2eaef96b" class="cell" data-execution_count="1">
+<div id="3e6508b9" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -264,7 +264,7 @@ Autores únicos: 42,025</code></pre>
 </section>
 <section id="creación-del-target" class="level1">
 <h1>2. Creación del Target</h1>
-<div id="ebb67533" class="cell" data-execution_count="2">
+<div id="12426907" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Agrupar por autor para evitar duplicación</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>author_stats <span class="op">=</span> df.groupby(<span class="st">'authorId'</span>).agg({</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'authorFollowers'</span>: <span class="st">'max'</span></span>
@@ -313,7 +313,7 @@ Name: authorId, dtype: int64</code></pre>
 </section>
 <section id="visualización-del-target" class="level1">
 <h1>3. Visualización del Target</h1>
-<div id="e25a9cf7" class="cell" data-execution_count="3">
+<div id="27f05417" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>target_counts <span class="op">=</span> df[<span class="st">'user_popularity'</span>].value_counts()</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> [<span class="st">'#FF6B6B'</span>, <span class="st">'#4ECDC4'</span>, <span class="st">'#45B7D1'</span>]</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -345,20 +345,19 @@ Name: authorId, dtype: int64</code></pre>
 <h1>4. Selección de Features</h1>
 <p><strong>Features seleccionadas:</strong></p>
 <ul>
-<li>✅ content (texto del tweet - TF-IDF)</li>
-<li>✅ account_age_days</li>
-<li>✅ content_length</li>
-<li>✅ mentions_count</li>
-<li>✅ time_response</li>
-<li>✅ sentiment_polarity</li>
+<li>content (texto del tweet - TF-IDF)</li>
+<li>account_age_days</li>
+<li>content_length</li>
+<li>mentions_count</li>
+<li>time_response</li>
+<li>sentiment_polarity</li>
 </ul>
 <p><strong>Features eliminadas:</strong></p>
 <ul>
 <li>authorFollowers (base del target)</li>
 <li>hashtags_count (todos 0)</li>
-<li>source (todos iguales)</li>
 </ul>
-<div id="6cd3c9a1" class="cell" data-execution_count="4">
+<div id="01d2dccf" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>df_filtered <span class="op">=</span> df[df[<span class="st">'has_profile_picture'</span>] <span class="op">==</span> <span class="va">True</span>].copy()</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>df_filtered <span class="op">=</span> df_filtered.dropna(subset<span class="op">=</span>[<span class="st">'content'</span>, <span class="st">'account_age_days'</span>, <span class="st">'sentiment_polarity'</span>])</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Registros finales: </span><span class="sc">{</span><span class="bu">len</span>(df_filtered)<span class="sc">:,}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -369,7 +368,7 @@ Name: authorId, dtype: int64</code></pre>
 </section>
 <section id="preprocesamiento-de-texto" class="level1">
 <h1>5. Preprocesamiento de Texto</h1>
-<div id="16b515a5" class="cell" data-execution_count="5">
+<div id="f656fa0a" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> clean_text(text):</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    text <span class="op">=</span> re.sub(<span class="vs">r'https</span><span class="op">?</span><span class="vs">://</span><span class="dv">\S</span><span class="op">+</span><span class="cf">|</span><span class="vs">www</span><span class="ch">\.</span><span class="dv">\S</span><span class="op">+</span><span class="vs">'</span>, <span class="st">''</span>, text)</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    text <span class="op">=</span> re.sub(<span class="vs">r'@</span><span class="dv">\w</span><span class="op">+</span><span class="vs">'</span>, <span class="st">''</span>, text)</span>
@@ -392,7 +391,7 @@ Limpio: yo no lo he visto en las calles...</code></pre>
 </section>
 <section id="preparación-de-datos" class="level1">
 <h1>6. Preparación de Datos</h1>
-<div id="35215b0d" class="cell" data-execution_count="6">
+<div id="ffb0108f" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>feature_columns <span class="op">=</span> [</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'content_clean'</span>,</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'account_age_days'</span>,</span>
@@ -419,7 +418,7 @@ Test: 30,083 (20.0%)</code></pre>
 </section>
 <section id="pipeline-y-entrenamiento" class="level1">
 <h1>7. Pipeline y Entrenamiento</h1>
-<div id="4d04dc4a" class="cell" data-execution_count="7">
+<div id="38706b46" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Cargar stopwords en español desde NLTK</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> nltk</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>nltk.download(<span class="st">'stopwords'</span>, quiet<span class="op">=</span><span class="va">True</span>)</span>
@@ -467,7 +466,7 @@ Entrenamiento completado</code></pre>
 </section>
 <section id="evaluación" class="level1">
 <h1>8. Evaluación</h1>
-<div id="6a6597b6" class="cell" data-execution_count="8">
+<div id="93116aa3" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>train_acc <span class="op">=</span> accuracy_score(y_train, y_pred_train)</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>test_acc <span class="op">=</span> accuracy_score(y_test, y_pred_test)</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -483,7 +482,7 @@ Test: 0.5553 (55.53%)
 Supera baseline (33.3%) por 22.2 puntos</code></pre>
 </div>
 </div>
-<div id="daf1f50a" class="cell" data-execution_count="9">
+<div id="e4c5c76a" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Classification Report:"</span>)</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(classification_report(y_test, y_pred_test))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -504,7 +503,7 @@ weighted avg       0.54      0.56      0.53     30083
 </section>
 <section id="visualización-matriz-de-confusión" class="level1">
 <h1>9. Visualización: Matriz de Confusión</h1>
-<div id="d3c3c613" class="cell" data-execution_count="10">
+<div id="0fa56d06" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>cm <span class="op">=</span> confusion_matrix(y_test, y_pred_test, labels<span class="op">=</span>[<span class="st">'BAJA'</span>, <span class="st">'MEDIA'</span>, <span class="st">'ALTA'</span>])</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">6</span>))</span>
@@ -525,7 +524,7 @@ weighted avg       0.54      0.56      0.53     30083
 </section>
 <section id="visualización-métricas-por-clase" class="level1">
 <h1>10. Visualización: Métricas por Clase</h1>
-<div id="87b8be1e" class="cell" data-execution_count="11">
+<div id="2a91933a" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>precision, recall, f1, support <span class="op">=</span> precision_recall_fscore_support(</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    y_test, y_pred_test, labels<span class="op">=</span>[<span class="st">'BAJA'</span>, <span class="st">'MEDIA'</span>, <span class="st">'ALTA'</span>]</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>)</span>
@@ -559,7 +558,7 @@ weighted avg       0.54      0.56      0.53     30083
 </section>
 <section id="visualización-features-numéricas" class="level1">
 <h1>11. Visualización: Features Numéricas</h1>
-<div id="92521613" class="cell" data-execution_count="12">
+<div id="8811a4be" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>feature_stats <span class="op">=</span> X_train[[<span class="st">'content_length'</span>, <span class="st">'mentions_count'</span>, <span class="st">'account_age_days'</span>]].describe().loc[<span class="st">'mean'</span>]</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>

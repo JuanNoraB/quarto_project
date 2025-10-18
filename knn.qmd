@@ -1,0 +1,157 @@
+---
+title: K-Nearest Neighbors (KNN)
+code-fold: false
+---
+
+# Importar librerías
+
+```{python}
+import pandas as pd
+from sklearn.datasets import fetch_openml
+from sklearn.model_selection import GridSearchCV, cross_val_score
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay
+from sklearn.model_selection import train_test_split
+```
+
+# Cargar dataset
+
+```{python}
+df = fetch_openml('titanic',version=1,as_frame=True)['frame']
+df
+```
+
+# Info del dataset
+
+```{python}
+df.info()
+```
+
+# Filtrado de columnas relevantes
+
+```{python}
+df = df[['pclass','survived','sex','age','sibsp','parch','embarked']]
+df
+```
+
+# Eliminación de datos faltantes y conversión del target
+
+```{python}
+df = df[df['survived'].notna()]
+df['survived'] = df['survived'].astype(int)
+```
+
+# Features y target
+
+```{python}
+X = df.drop(columns='survived') #features
+y = df['survived'] #target
+```
+
+# Identificación de features
+
+```{python}
+cat_cols = ['sex','embarked'] #categorical nominal => OneHotEncoder
+num_cols = ['age','sibsp','parch','pclass']
+```
+
+# Preprocesamiento
+
+## Generación de pipeline por tipo de variable
+```{python}
+categorical_pipeline = Pipeline([
+    ('imputacion_cat',SimpleImputer(strategy='most_frequent')),
+    ('encodage_cat',OneHotEncoder(handle_unknown='ignore'))
+])
+
+
+
+# Mujer, Hombre => (1,0) => StandarScaler() NO HACER
+
+numerical_pipeline = Pipeline([
+    ('imputacion_num',SimpleImputer(strategy='mean')),
+    ('escalamiento',StandardScaler())
+])
+
+```
+
+## Aplicar ColumnTransformer 
+
+```{python}
+preprocessor = ColumnTransformer([
+    ('cat',categorical_pipeline,cat_cols),
+    ('num',numerical_pipeline,num_cols)
+])
+```
+
+# Pipeline 
+
+```{python}
+pipeline = Pipeline([
+    ('preprocessor',preprocessor),
+    ('classificador',KNeighborsClassifier())
+])
+```
+
+
+# Train test split
+
+```{python}
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.2,
+    stratify=y,
+    random_state=42
+)
+```
+
+# Gridsearch
+
+## Definir el param_grid
+
+```{python}
+param_grid = {
+    'classificador__n_neighbors':list(range(1,5)),
+    'classificador__weights':['uniform','distance'],
+    'classificador__metric':['minkowski','euclidean','manhattan']
+}
+```
+
+
+## Realizar el Gridseach
+```{python}
+grid = GridSearchCV(pipeline,param_grid,cv=5,scoring='f1')
+grid.fit(X_train,y_train)
+```
+
+## Obtener el mejor best_estimator
+
+```{python}
+best_model = grid.best_estimator_
+```
+
+# Presentar el mejor estimator
+
+```{python}
+print("MEJORES PARAMETROS: \n",grid.best_params_)
+```
+
+# Evaluación
+
+```{python}
+y_pred = best_model.predict(X_test)
+```
+
+# Reporte del modelo
+
+```{python}
+
+print('REPORTE DE CLASIFICACION:\n',classification_report(y_test,y_pred))
+
+ConfusionMatrixDisplay(confusion_matrix(y_test,y_pred)).plot()
+```

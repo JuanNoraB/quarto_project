@@ -1,0 +1,220 @@
+---
+title: "K-means"
+code-fold: false
+---
+
+
+
+# Importar librerías
+
+```{python}
+import altair as alt
+import pandas as pd
+from sklearn.cluster import KMeans
+#---
+from sklearn.preprocessing import StandardScaler
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import silhouette_score
+```
+
+# Carga de datos
+
+```{python}
+url = "https://raw.githubusercontent.com/erickedu85/dataset/master/age_income.csv"
+df = pd.read_csv(url)
+df.head()
+```
+
+# Visualizar los datos
+
+```{python}
+alt.Chart(df).mark_circle(size=20).encode(
+    alt.X('age'),
+    alt.Y('annual_income($)'),
+    tooltip=['age','annual_income($)']
+).interactive()
+```
+
+# K-means sin Estandarización
+
+## Método del codo (Elbow)
+
+### Calcular el Sum of Squared Errors (SSE)
+```{python}
+sse = [] #inertia
+k_range = range(2,11) #valores posibles de k
+
+for k in k_range:
+    kmeans = KMeans(n_clusters=k,random_state=42)
+    kmeans.fit(df[['age','annual_income($)']])
+    sse.append(kmeans.inertia_)
+
+print("Inertia:\n",sse)
+```
+
+### Visualizar el Sum of Squared Errors (SSE) vs K
+
+```{python}
+
+elbow_df = pd.DataFrame(
+    {
+        'K':list(k_range),
+        'SSE':sse
+    }
+)
+
+# elbow_df
+
+alt.Chart(elbow_df).mark_line(point=True).encode(
+    alt.X("K"),
+    alt.Y("SSE"),
+    tooltip=["K","SSE"]
+).properties(
+    title="Método del Codo"
+).interactive()
+
+```
+
+
+## Clusterización
+
+```{python}
+k_clusters = 3
+clusters = KMeans(n_clusters=k_clusters,random_state=42)
+df['clusters'] = clusters.fit_predict(df[['age','annual_income($)']])
+df.head()
+```
+
+### Visualizar la clusterización
+
+```{python}
+alt.Chart(df).mark_circle(size=20).encode(
+    alt.X('age'),
+    alt.Y('annual_income($)'),
+    alt.Color('clusters:N'),
+    tooltip=['age','annual_income($)','clusters:N']
+).properties(
+    title='CLUSTERIZACION'
+).interactive()
+```
+
+
+# K-means con Estandarización + Pipeline 
+
+## ColumnTransformer
+
+```{python}
+num_cols = ['age','annual_income($)']
+
+preprocessor = ColumnTransformer(
+    [
+        ('standar',StandardScaler(),num_cols)
+    ]
+)
+```
+
+## Pipeline
+
+```{python}
+
+pipeline = Pipeline(
+    [
+        ('scaler',preprocessor),
+        ('kmeans',KMeans(random_state=42))
+    ]
+)
+```
+
+## Método del codo (Elbow) + Silhouette
+
+### Calcular el Sum of Squared Errors (SSE) + Silhouette
+```{python}
+
+k_range = range(2,11)
+sse_standar = []
+silhouette_scores = []
+
+for k in k_range:
+    pipeline.set_params(kmeans__n_clusters=k)
+    pipeline.fit(df[num_cols])
+    sse_standar.append(
+        pipeline.named_steps['kmeans'].inertia_
+    )
+
+    pred = pipeline.predict(df[num_cols])
+    print("K:",k)
+    print("PRED",pred)
+    score = silhouette_score(pipeline.named_steps['scaler'].transform(df[num_cols]),pred)
+    print("SILHOUETTE SCORE",score)
+    print("\n")
+    silhouette_scores.append(score)
+
+#silhouette_score
+
+```
+
+## Visualizar el Sum of Squared Errors (SSE), Silhouette vs K
+
+
+```{python}
+
+sse_standard_df = pd.DataFrame(
+    {
+        'K':k_range,
+        'SSE_STANDARD':sse_standar
+    }
+)
+
+silhouette_df = pd.DataFrame(
+    {
+        'K':k_range,
+        'SILHOUETTE':silhouette_scores
+    }
+)
+
+viz_sse_standard = alt.Chart(sse_standard_df).mark_line(point=True).encode(
+    alt.X('K'),
+    alt.Y('SSE_STANDARD'),
+    tooltip=['K',"SSE_STANDARD"]
+).properties(
+    title='METODO DEL CODO CON PIPELINE + ESTANDARIZACION'
+).interactive()
+
+
+viz_silhouette = alt.Chart(silhouette_df).mark_line(point=True).encode(
+    alt.X('K'),
+    alt.Y('SILHOUETTE'),
+    tooltip=['K',"SILHOUETTE"]
+).properties(
+    title='SILHOUETTE SCORE CON PIPELINE + ESTANDARIZACION'
+).interactive()
+
+
+viz_sse_standard | viz_silhouette
+```
+
+## Clusterizacion con Pipeline + StandardScaler()
+
+```{python}
+k_optimo = k_range[silhouette_scores.index(max(silhouette_scores))]
+print("K_OPTIMO",k_optimo)
+
+pipeline.set_params(kmeans__n_clusters=k_optimo)
+df['clusters_standard'] = pipeline.fit_predict(df[num_cols])
+df.head()
+```
+
+## Visualizar la clusterización
+
+
+```{python}
+alt.Chart(df).mark_circle(size=20).encode(
+    alt.X('age'),
+    alt.Y('annual_income($)'),
+    alt.Color('clusters_standard:N'),
+    tooltip=['age','annual_income($)','clusters_standard:N']
+).properties(
+    title='CLUSTERIZACION CON PIPELINE + STANDARSCALER()'
+).interactive()
+```

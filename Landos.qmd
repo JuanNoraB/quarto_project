@@ -106,18 +106,17 @@ plt.show()
 
 **Features seleccionadas:**
 
-- ✅ content (texto del tweet - TF-IDF)
-- ✅ account_age_days
-- ✅ content_length
-- ✅ mentions_count
-- ✅ time_response
-- ✅ sentiment_polarity
+-  content (texto del tweet - TF-IDF)
+-  account_age_days
+-  content_length
+-  mentions_count
+-  time_response
+-  sentiment_polarity
 
 **Features eliminadas:**
 
 -  authorFollowers (base del target)
 -  hashtags_count (todos 0)
--  source (todos iguales)
 
 ```{python}
 df_filtered = df[df['has_profile_picture'] == True].copy()

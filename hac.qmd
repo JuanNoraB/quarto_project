@@ -1,0 +1,114 @@
+---
+title: "Hierachical Agglomerative Clustering (HAC)"
+code-fold: false
+---
+
+# Importar las librerías
+
+```{python}
+
+import pandas as pd
+import altair as alt
+from sklearn.datasets import load_iris
+from sklearn.cluster import AgglomerativeClustering
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+
+from scipy.cluster.hierarchy import dendrogram,linkage
+
+import matplotlib.pyplot as plt
+
+```
+
+# Cargar el dataset
+
+```{python}
+iris = load_iris()
+X = pd.DataFrame(iris.data,columns=iris.feature_names)[['sepal length (cm)','sepal width (cm)']].iloc[:50]
+X
+```
+
+# Pipeline
+
+```{python}
+pipeline = Pipeline(
+    [
+        ('scaler',StandardScaler()),
+        ('agglo',AgglomerativeClustering(n_clusters=3))
+    ]
+)
+```
+
+# Fit
+
+```{python}
+labels = pipeline.fit_predict(X)
+labels
+```
+
+# Visualizar los clusters
+
+## Creacion del dataframe para la viz
+```{python}
+
+X_scaled = pipeline.named_steps['scaler'].transform(X)
+df_viz = pd.DataFrame(X_scaled,columns=['Feature1','Feature2'])
+df_viz['clusters'] = labels.astype(str)
+df_viz['index'] = X.index.astype(str)
+df_viz
+
+```
+
+## Visualización
+
+```{python}
+
+scatter = alt.Chart(df_viz).mark_circle(size=65).encode(
+    alt.X('Feature1'),
+    alt.Y('Feature2'),
+    alt.Color('clusters'),
+    tooltip=['Feature1','Feature2','index']
+).interactive()
+
+texto_scatter = alt.Chart(df_viz).mark_text(
+    align='left',
+    dx=5,
+    baseline='middle'
+).encode(
+    alt.X('Feature1'),
+    alt.Y('Feature2'),
+    text='index'
+)
+
+
+(scatter + texto_scatter).properties(
+    width=500,
+    height=500
+)
+
+```
+
+# Visualizar dendrogram
+
+## Creación del linked
+```{python}
+
+#X_scaled
+#‘ward’, ‘complete’, ‘average’, ‘single’}
+linked = linkage(X_scaled,method='complete')
+
+```
+## Dendrogram
+
+```{python}
+plt.figure(figsize=(10, 5))
+dendrogram(linked,
+           orientation='top',
+           distance_sort='descending',
+           show_leaf_counts=False)
+plt.title("Dendrogram")
+plt.xlabel("Sample index")
+plt.ylabel("Distance")
+# plt.grid(True)
+plt.show()
+```
