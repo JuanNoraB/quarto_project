@@ -1,5 +1,124 @@
---- 
-title: "Bag of Words (Bow)"
+---
+title: "Bag of Words (BoW)"
+code-fold: false
 ---
 
 
+# Importar librerías
+
+```{python}
+from sklearn.feature_extraction.text import CountVectorizer #BoW
+import pandas as pd
+import nltk
+from nltk.corpus import stopwords
+from nltk import word_tokenize # tokenizacion
+from nltk import pos_tag #lematizacion
+from nltk.stem import WordNetLemmatizer
+from nltk.corpus import wordnet
+
+lemmatizer = WordNetLemmatizer()
+
+nltk.download('stopwords') # necessary for removal of stop words
+nltk.download('wordnet') # necessary for lemmatization
+```
+
+
+# Dataset ejemplo Corpus
+
+```{python}
+corpus = [
+    "Machine learning is all fun 1990 :) :( 🙁",
+    "Machine learning is part of AI AI 2000 🙁",
+    "I am l🙁ving 🙁 about machine learning",
+    "I love AI and machine learning"
+]
+```
+
+# BoW - CountVectorizer()
+
+```{python}
+
+stop_words = stopwords.words("english")
+vectorizer = CountVectorizer(stop_words=stop_words)
+```
+
+
+## Ejemplo de función de limpieza
+
+```{python}
+
+
+
+def get_wordnet_pos(treebank_tag):
+    # print("treebank_tag",treebank_tag)
+    if treebank_tag.startswith('J'):
+        return wordnet.ADJ
+    elif treebank_tag.startswith('V'):
+        return wordnet.VERB
+    elif treebank_tag.startswith('N'):
+        return wordnet.NOUN
+    elif treebank_tag.startswith('R'):
+        return wordnet.ADV
+    else:
+        return wordnet.NOUN 
+
+
+def preprocessing_document(doc):
+    #1 transformar en minusculas
+    doc = doc.lower()
+    
+    #2 tokenizar
+    tokens = word_tokenize(doc)
+
+    #3 obtener lematizacion con etiqueta POS
+    tagged_tokens = pos_tag(tokens)
+
+    #ELIMINAR LAS STOP-WORDS EN CASO QUE NO USE EL PARAMETRO STOPWORD EN LA VECTORIZACION
+
+    #4 filtrar numeros
+    filtered_tokens = [(word,pos) for (word,pos) in tagged_tokens if word.isalpha()]
+
+    #5 Lematizacion usando el pos
+    lemmatized_words = [lemmatizer.lemmatize(word,get_wordnet_pos(pos)) for word, pos in filtered_tokens]
+
+    return " ".join(lemmatized_words)
+
+```
+
+# Preprocesamiento manual
+
+```{python}
+for doc in corpus:
+    r = preprocessing_document(doc)
+    print(f"doc: {doc}, preprocesamiento: {r}")
+```
+
+
+## Fit_transform
+Aprende del Corpus (vocabulario) y del ser caso elimina las stop-words
+
+
+```{python}
+corpus_cleaned = [preprocessing_document(doc) for doc in corpus]
+X = vectorizer.fit_transform(corpus)
+```
+
+## Obtener las palabras finales
+
+```{python}
+vectorizer.get_feature_names_out()
+```
+
+# Matriz de ocurrencias (conteos)
+Esta matriz muestra cada fila un documento, y cada columna una palabra
+
+```{python}
+X.toarray()
+```
+
+```{python}
+
+
+df = pd.DataFrame(X.toarray(),columns=vectorizer.get_feature_names_out())
+df
+```

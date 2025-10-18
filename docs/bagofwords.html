@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Bag of Words (Bow) – Machine Learning</title>
+<title>Bag of Words (BoW) – Machine Learning</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,10 +20,45 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="site_libs/quarto-nav/headroom.min.js"></script>
 <script src="site_libs/clipboard/clipboard.min.js"></script>
 <script src="site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -68,6 +103,9 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 </head>
@@ -111,6 +149,10 @@ ul.task-list li input[type="checkbox"] {
     <a class="nav-link" href="./regresion_hogares.html"> 
 <span class="menu-text">Regresión Hogares</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./Landos.html"> 
+<span class="menu-text">Clasificación Tweets</span></a>
+  </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -122,15 +164,32 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#importar-librerías" id="toc-importar-librerías" class="nav-link active" data-scroll-target="#importar-librerías">Importar librerías</a></li>
+  <li><a href="#dataset-ejemplo-corpus" id="toc-dataset-ejemplo-corpus" class="nav-link" data-scroll-target="#dataset-ejemplo-corpus">Dataset ejemplo Corpus</a></li>
+  <li><a href="#bow---countvectorizer" id="toc-bow---countvectorizer" class="nav-link" data-scroll-target="#bow---countvectorizer">BoW - CountVectorizer()</a>
+  <ul class="collapse">
+  <li><a href="#ejemplo-de-función-de-limpieza" id="toc-ejemplo-de-función-de-limpieza" class="nav-link" data-scroll-target="#ejemplo-de-función-de-limpieza">Ejemplo de función de limpieza</a></li>
+  </ul></li>
+  <li><a href="#preprocesamiento-manual" id="toc-preprocesamiento-manual" class="nav-link" data-scroll-target="#preprocesamiento-manual">Preprocesamiento manual</a>
+  <ul class="collapse">
+  <li><a href="#fit_transform" id="toc-fit_transform" class="nav-link" data-scroll-target="#fit_transform">Fit_transform</a></li>
+  <li><a href="#obtener-las-palabras-finales" id="toc-obtener-las-palabras-finales" class="nav-link" data-scroll-target="#obtener-las-palabras-finales">Obtener las palabras finales</a></li>
+  </ul></li>
+  <li><a href="#matriz-de-ocurrencias-conteos" id="toc-matriz-de-ocurrencias-conteos" class="nav-link" data-scroll-target="#matriz-de-ocurrencias-conteos">Matriz de ocurrencias (conteos)</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Bag of Words (Bow)</h1>
+<h1 class="title">Bag of Words (BoW)</h1>
 </div>
 
 
@@ -147,8 +206,214 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="importar-librerías" class="level1">
+<h1>Importar librerías</h1>
+<div id="b0800c18" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.feature_extraction.text <span class="im">import</span> CountVectorizer <span class="co">#BoW</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> nltk</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> nltk.corpus <span class="im">import</span> stopwords</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> nltk <span class="im">import</span> word_tokenize <span class="co"># tokenizacion</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> nltk <span class="im">import</span> pos_tag <span class="co">#lematizacion</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> nltk.stem <span class="im">import</span> WordNetLemmatizer</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> nltk.corpus <span class="im">import</span> wordnet</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>lemmatizer <span class="op">=</span> WordNetLemmatizer()</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>nltk.download(<span class="st">'stopwords'</span>) <span class="co"># necessary for removal of stop words</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>nltk.download(<span class="st">'wordnet'</span>) <span class="co"># necessary for lemmatization</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>[nltk_data] Downloading package stopwords to
+[nltk_data]     /home/juanchx/nltk_data...
+[nltk_data]   Package stopwords is already up-to-date!
+[nltk_data] Downloading package wordnet to /home/juanchx/nltk_data...
+[nltk_data]   Package wordnet is already up-to-date!</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>True</code></pre>
+</div>
+</div>
+</section>
+<section id="dataset-ejemplo-corpus" class="level1">
+<h1>Dataset ejemplo Corpus</h1>
+<div id="c79fdff1" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>corpus <span class="op">=</span> [</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Machine learning is all fun 1990 :) :( 🙁"</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Machine learning is part of AI AI 2000 🙁"</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"I am l🙁ving 🙁 about machine learning"</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"I love AI and machine learning"</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="bow---countvectorizer" class="level1">
+<h1>BoW - CountVectorizer()</h1>
+<div id="b40090ec" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>stop_words <span class="op">=</span> stopwords.words(<span class="st">"english"</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>vectorizer <span class="op">=</span> CountVectorizer(stop_words<span class="op">=</span>stop_words)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="ejemplo-de-función-de-limpieza" class="level2">
+<h2 class="anchored" data-anchor-id="ejemplo-de-función-de-limpieza">Ejemplo de función de limpieza</h2>
+<div id="bf749133" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_wordnet_pos(treebank_tag):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># print("treebank_tag",treebank_tag)</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> treebank_tag.startswith(<span class="st">'J'</span>):</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> wordnet.ADJ</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> treebank_tag.startswith(<span class="st">'V'</span>):</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> wordnet.VERB</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> treebank_tag.startswith(<span class="st">'N'</span>):</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> wordnet.NOUN</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> treebank_tag.startswith(<span class="st">'R'</span>):</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> wordnet.ADV</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> wordnet.NOUN </span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> preprocessing_document(doc):</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">#1 transformar en minusculas</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    doc <span class="op">=</span> doc.lower()</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">#2 tokenizar</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    tokens <span class="op">=</span> word_tokenize(doc)</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    <span class="co">#3 obtener lematizacion con etiqueta POS</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    tagged_tokens <span class="op">=</span> pos_tag(tokens)</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">#ELIMINAR LAS STOP-WORDS EN CASO QUE NO USE EL PARAMETRO STOPWORD EN LA VECTORIZACION</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>    <span class="co">#4 filtrar numeros</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>    filtered_tokens <span class="op">=</span> [(word,pos) <span class="cf">for</span> (word,pos) <span class="kw">in</span> tagged_tokens <span class="cf">if</span> word.isalpha()]</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    <span class="co">#5 Lematizacion usando el pos</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    lemmatized_words <span class="op">=</span> [lemmatizer.lemmatize(word,get_wordnet_pos(pos)) <span class="cf">for</span> word, pos <span class="kw">in</span> filtered_tokens]</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="st">" "</span>.join(lemmatized_words)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="preprocesamiento-manual" class="level1">
+<h1>Preprocesamiento manual</h1>
+<div id="da131587" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> doc <span class="kw">in</span> corpus:</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> preprocessing_document(doc)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"doc: </span><span class="sc">{</span>doc<span class="sc">}</span><span class="ss">, preprocesamiento: </span><span class="sc">{</span>r<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>doc: Machine learning is all fun 1990 :) :( 🙁, preprocesamiento: machine learning be all fun
+doc: Machine learning is part of AI AI 2000 🙁, preprocesamiento: machine learning be part of ai ai
+doc: I am l🙁ving 🙁 about machine learning, preprocesamiento: i be about machine learning
+doc: I love AI and machine learning, preprocesamiento: i love ai and machine learning</code></pre>
+</div>
+</div>
+<section id="fit_transform" class="level2">
+<h2 class="anchored" data-anchor-id="fit_transform">Fit_transform</h2>
+<p>Aprende del Corpus (vocabulario) y del ser caso elimina las stop-words</p>
+<div id="45a362da" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>corpus_cleaned <span class="op">=</span> [preprocessing_document(doc) <span class="cf">for</span> doc <span class="kw">in</span> corpus]</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> vectorizer.fit_transform(corpus)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="obtener-las-palabras-finales" class="level2">
+<h2 class="anchored" data-anchor-id="obtener-las-palabras-finales">Obtener las palabras finales</h2>
+<div id="bb50fbe7" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>vectorizer.get_feature_names_out()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<pre><code>array(['1990', '2000', 'ai', 'fun', 'learning', 'love', 'machine', 'part',
+       'ving'], dtype=object)</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="matriz-de-ocurrencias-conteos" class="level1">
+<h1>Matriz de ocurrencias (conteos)</h1>
+<p>Esta matriz muestra cada fila un documento, y cada columna una palabra</p>
+<div id="340a06e1" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>X.toarray()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<pre><code>array([[1, 0, 0, 1, 1, 0, 1, 0, 0],
+       [0, 1, 2, 0, 1, 0, 1, 1, 0],
+       [0, 0, 0, 0, 1, 0, 1, 0, 1],
+       [0, 0, 1, 0, 1, 1, 1, 0, 0]])</code></pre>
+</div>
+</div>
+<div id="68272c41" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame(X.toarray(),columns<span class="op">=</span>vectorizer.get_feature_names_out())</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>df</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<div>
 
 
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">1990</th>
+<th data-quarto-table-cell-role="th">2000</th>
+<th data-quarto-table-cell-role="th">ai</th>
+<th data-quarto-table-cell-role="th">fun</th>
+<th data-quarto-table-cell-role="th">learning</th>
+<th data-quarto-table-cell-role="th">love</th>
+<th data-quarto-table-cell-role="th">machine</th>
+<th data-quarto-table-cell-role="th">part</th>
+<th data-quarto-table-cell-role="th">ving</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+
+
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

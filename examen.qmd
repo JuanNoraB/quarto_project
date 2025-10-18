@@ -1,7 +1,23 @@
-# %% [markdown]
-# # ANÁLISIS EXPLORATORIO DE DATOS (EDA) - TWEETS CON TOXICIDAD
+---
+title: "Análisis Exploratorio de Datos - Tweets con Toxicidad"
+author: "Análisis de Machine Learning"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: false
+    theme: cosmo
+jupyter: python3
+---
 
-# %%
+# Introducción
+
+
+```{python}
+#| label: setup
+#| echo: false
+#| warning: false
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -17,97 +33,58 @@ warnings.filterwarnings('ignore')
 
 plt.style.use('seaborn-v0_8-darkgrid')
 sns.set_palette("husl")
-print("="*80)
-print("ANÁLISIS EXPLORATORIO DE DATOS - TWEETS CON TOXICIDAD")
-print("="*80)
 
-df = pd.read_csv('1500_tweets_con_toxicity.csv')
-print(f"\n✓ Dataset cargado: {df.shape[0]:,} registros x {df.shape[1]} columnas")
+df = pd.read_csv('/home/juanchx/Documents/Maestria_IA/machine learning/final_examen_data/1500_tweets_con_toxicity.csv')
+```
 
-# %%
-# BLOQUE 1: TIPOS DE DATOS Y CLASIFICACIÓN
-print("\n" + "="*80)
-print("TIPOS DE DATOS Y CLASIFICACIÓN DE VARIABLES")
-print("="*80)
+Dataset cargado: **1,500** registros x **{python} df.shape[1]** columnas
 
-print('Exploracion inicial tipos de datos y valores nulos')
-print(df.info())
+# 1. Exploración Inicial de Datos
 
-print('Exploracion inicial valores nulos')
-print(df.isnull().sum())
+## 1.1 Tipos de Variables
+
+```{python}
+#| label: tipos-datos
 
 numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
 categorical_cols = df.select_dtypes(include=['object']).columns.tolist()
 boolean_cols = df.select_dtypes(include=['bool']).columns.tolist()
 
-print(f"\nVARIABLES NUMÉRICAS ({len(numeric_cols)}): {numeric_cols}")
-print(f"VARIABLES CATEGÓRICAS ({len(categorical_cols)}): {categorical_cols[:5]}... (truncado)")
-print(f"VARIABLES BOOLEANAS ({len(boolean_cols)}): {boolean_cols}")
+print(f"Variables numéricas: {len(numeric_cols)}")
+print(f"Variables categóricas: {len(categorical_cols)}")
+print(f"Variables booleanas: {len(boolean_cols)}")
+```
 
-# %%
-# BLOQUE 2: IDENTIFICACIÓN DE COLUMNAS CON POCA INFORMACIÓN
-print("\n" + "="*80)
-print("ANÁLISIS DE COLUMNAS CON POCA INFORMACIÓN")
-print("="*80)
+## 1.2 Valores Nulos y Duplicados
 
-for col in df.columns:
-    unique_ratio = df[col].nunique() / len(df)
-    if unique_ratio > 0.98:
-        print(f"⚠️  {col}: {df[col].nunique():,} únicos ({unique_ratio*100:.1f}%) - ALTA CARDINALIDAD")
-
-for col in df.columns:
-    null_ratio = df[col].isnull().sum() / len(df)
-    if null_ratio > 0.8:
-        print(f"⚠️  {col}: {null_ratio*100:.1f}% nulos - ALTA PROPORCIÓN DE NULOS")
-
-#analisis por nombre de variables
-print("\n" + "="*80)
-print("ANÁLISIS POR NOMBRE DE VARIABLES")
-print("="*80)
-print(df.columns)
-columnas_identificadores_unicos = [
-    'tweetId', 'tweetUrl',
-    'authorId', 'authorName', 'authorUsername'
-]
-#analisis de columnas identificadores unicos
-print("\n" + "="*80)
-print("ANÁLISIS DE COLUMNAS IDENTIFICADORES UNICOS")
-print("="*80)
-print(df[columnas_identificadores_unicos].nunique())
-
-# %%
-# BLOQUE 3: VALORES NULOS Y DUPLICADOS
-print("\n" + "="*80)
-print("ANÁLISIS DE VALORES NULOS Y DUPLICADOS")
-print("="*80)
+```{python}
+#| label: valores-nulos
 
 null_counts = df.isnull().sum()
 null_percentages = (null_counts / len(df)) * 100
 null_df = pd.DataFrame({'Columna': null_counts.index, 'Nulos': null_counts.values, 
                         'Porcentaje': null_percentages.values}).sort_values('Nulos', ascending=False)
-print("\n", null_df[null_df['Nulos'] > 0].to_string(index=False))
+
+if null_df['Nulos'].sum() > 0:
+    fig, ax = plt.subplots(figsize=(12, 6))
+    null_data = null_df[null_df['Nulos'] > 0]
+    ax.barh(null_data['Columna'], null_data['Porcentaje'], color='coral')
+    ax.set_xlabel('Porcentaje de Valores Nulos (%)')
+    ax.set_title('Valores Nulos por Columna', fontweight='bold')
+    plt.tight_layout()
+    plt.show()
+else:
+    print("✓ No hay valores nulos")
 
 duplicates = df.duplicated().sum()
-print(f"\nDUPLICADOS: {duplicates}")
+print(f"Duplicados: {duplicates}")
+```
 
-toxicity_nulls = df['toxicity_score'].isnull().sum()
-print(f"\n⚠️  toxicity_score NULOS: {toxicity_nulls} ({(toxicity_nulls/len(df))*100:.1f}%)")
+## 1.3 Distribución de Toxicidad
 
-fig, ax = plt.subplots(figsize=(12, 6))
-null_data = null_df[null_df['Nulos'] > 0]
-ax.barh(null_data['Columna'], null_data['Porcentaje'], color='coral')
-ax.set_xlabel('Porcentaje de Valores Nulos (%)')
-ax.set_title('Valores Nulos por Columna', fontweight='bold')
-plt.tight_layout()
-plt.savefig('01_valores_nulos.png', dpi=300, bbox_inches='tight')
-print("✓ Guardado: 01_valores_nulos.png")
-plt.close()
-
-# %%
-# BLOQUE 4: ANÁLISIS DE toxicity_score
-print("\n" + "="*80)
-print("ANÁLISIS DE toxicity_score")
-print("="*80)
+```{python}
+#| label: dist-toxicity
+#| fig-cap: "Distribución del score de toxicidad"
 
 toxicity_data = df['toxicity_score'].dropna()
 print("\nESTADÍSTICAS:\n", toxicity_data.describe())
@@ -139,15 +116,13 @@ axes[1, 1].violinplot(toxicity_data, showmeans=True, showmedians=True)
 axes[1, 1].set_title('Violin Plot', fontweight='bold')
 
 plt.tight_layout()
-plt.savefig('02_toxicity_distribucion.png', dpi=300)
-print("✓ Guardado: 02_toxicity_distribucion.png")
-plt.close()
+plt.show()
+```
 
-# %%
-# BLOQUE 5: VARIABLES NUMÉRICAS
-print("\n" + "="*80)
-print("ANÁLISIS DE VARIABLES NUMÉRICAS")
-print("="*80)
+## 1.4 Variables Numéricas
+
+```{python}
+#| label: vars-numericas
 
 # Variables numéricas seleccionadas para análisis
 # Excluidas: 
@@ -168,9 +143,9 @@ ax.set_xlabel('Correlación con toxicity_score')
 ax.set_title('Correlaciones', fontweight='bold')
 ax.axvline(0, color='black', linewidth=0.8)
 plt.tight_layout()
-plt.savefig('03_correlaciones.png', dpi=300)
-print("✓ Guardado: 03_correlaciones.png")
-plt.close()
+# plt.savefig('03_correlaciones.png', dpi=300)
+# print("✓ Guardado: 03_correlaciones.png")
+plt.show()
 
 fig, axes = plt.subplots(2, 3, figsize=(15, 10))
 axes = axes.flatten()
@@ -182,9 +157,9 @@ for idx, col in enumerate(numeric_features):
 # Eliminar el subplot extra
 fig.delaxes(axes[5])
 plt.tight_layout()
-plt.savefig('04_histogramas_numericas.png', dpi=300)
-print("✓ Guardado: 04_histogramas_numericas.png")
-plt.close()
+# plt.savefig('04_histogramas_numericas.png', dpi=300)
+# print("✓ Guardado: 04_histogramas_numericas.png")
+plt.show()
 
 df_clean = df.dropna(subset=['toxicity_score'])
 fig, axes = plt.subplots(2, 3, figsize=(15, 10))
@@ -205,15 +180,15 @@ for idx, col in enumerate(numeric_features):
 # Eliminar el subplot extra
 fig.delaxes(axes[5])
 plt.tight_layout()
-plt.savefig('05_scatterplots_toxicity.png', dpi=300)
-print("✓ Guardado: 05_scatterplots_toxicity.png")
-plt.close()
+# plt.savefig('05_scatterplots_toxicity.png', dpi=300)
+# print("✓ Guardado: 05_scatterplots_toxicity.png")
+plt.show()
+```
 
-# %%
-# BLOQUE 6: VARIABLES CATEGÓRICAS
-print("\n" + "="*80)
-print("ANÁLISIS DE VARIABLES CATEGÓRICAS")
-print("="*80)
+## 1.5 Variables Categóricas
+
+```{python}
+#| label: vars-categoricas
 
 # Variables categóricas seleccionadas para análisis
 # Excluidas:
@@ -232,28 +207,28 @@ df[categorical_features[0]].value_counts().plot(kind='bar', ax=ax, color='lightg
 ax.set_title(categorical_features[0], fontweight='bold')
 ax.set_ylabel('Frecuencia')
 plt.tight_layout()
-plt.savefig('06_categoricas_distribucion.png', dpi=300)
-print("✓ Guardado: 06_categoricas_distribucion.png")
-plt.close()
+# plt.savefig('06_categoricas_distribucion.png', dpi=300)
+# print("✓ Guardado: 06_categoricas_distribucion.png")
+plt.show()
 
 fig, ax = plt.subplots(1, 1, figsize=(8, 5))
 df_clean.boxplot(column='toxicity_score', by=categorical_features[0], ax=ax)
 ax.set_title(f'Toxicity por {categorical_features[0]}', fontweight='bold')
 plt.suptitle('')
 plt.tight_layout()
-plt.savefig('07_toxicity_por_categoria.png', dpi=300)
-print("✓ Guardado: 07_toxicity_por_categoria.png")
-plt.close()
+# plt.savefig('07_toxicity_por_categoria.png', dpi=300)
+# print("✓ Guardado: 07_toxicity_por_categoria.png")
+plt.show()
 
 print("\nTOXICITY PROMEDIO POR CATEGORÍA:")
 for col in categorical_features:
     print(f"\n{col}:\n", df_clean.groupby(col)['toxicity_score'].agg(['mean', 'median', 'std', 'count']))
+```
 
-# %%
-# BLOQUE 7: ANÁLISIS DE TEXTO
-print("\n" + "="*80)
-print("ANÁLISIS DE TEXTO")
-print("="*80)
+## 1.6 Análisis de Texto
+
+```{python}
+#| label: analisis-texto
 
 print("\nLONGITUD:\n", df['content_length'].describe())
 
@@ -293,9 +268,7 @@ ax.set_xlabel('Frecuencia')
 ax.set_title('Top 8 Palabras Más Frecuentes', fontweight='bold')
 ax.invert_yaxis()
 plt.tight_layout()
-plt.savefig('08_top_palabras.png', dpi=300, bbox_inches='tight')
-print("✓ Guardado: 08_top_palabras.png")
-plt.close()
+plt.show()
 
 wordcloud = WordCloud(width=1600, height=800, background_color='white',
                      stopwords=stopwords_es, max_words=100, colormap='viridis').generate(' '.join(words))
@@ -304,60 +277,23 @@ ax.imshow(wordcloud, interpolation='bilinear')
 ax.axis('off')
 ax.set_title('Nube de Palabras', fontsize=16, fontweight='bold')
 plt.tight_layout()
-plt.savefig('09_wordcloud.png', dpi=300)
-print("✓ Guardado: 09_wordcloud.png")
-plt.close()
+# plt.savefig('09_wordcloud.png', dpi=300)
+# print("✓ Guardado: 09_wordcloud.png")
+plt.show()
+```
 
-# %%
-# BLOQUE 8: HALLAZGOS CLAVE
-print("\n" + "="*80)
-print("HALLAZGOS CLAVE DEL EDA")
-print("="*80)
+## 1.7 Hallazgos Clave del EDA
 
-print("\nHALLAZGO 1: Variables Excluidas del Análisis")
-print("   Variables sin varianza (todos los valores iguales):")
-print("   - isReply: 100% True")
-print("   - authorVerified: 100% False")
-print("   - source: 100% Twitter for iPhone")
-print("   - hashtags_count: 100% ceros")
-print("   - sentiment_polarity: variable dummy sin información real")
-print("   Variables con alta cardinalidad sin valor predictivo:")
-print("   - IDs: tweetId, authorId, conversationId, inReplyToId (>95% únicos)")
-print("   - Nombres: authorName, authorUsername (identificadores únicos)")
-print("   Variables con exceso de nulos:")
-print(f"   - hashtags: 92% nulos")
-print(f"   - toxicity_score: {toxicity_nulls} nulos (10.2%) - requiere manejo en preprocesamiento")
+**Variables sin variabilidad:** Múltiples columnas fueron excluidas por contener valores constantes: `isReply` (100% True), `authorVerified` (100% False), `source` (100% "Twitter for iPhone"), y `hashtags_count` (100% cero). Estas variables no aportan información discriminativa para el análisis.
 
-print("\nHALLAZGO 2: Distribución de Toxicidad")
-print(f"   - Distribución asimétrica positiva (skewness: {skew(toxicity_data):.3f})")
-print("   - Mayoría de tweets con toxicidad baja (concentración en 0.0-0.3)")
-print("   - Q-Q Plot muestra desviación de normalidad en los extremos")
-print("   - Boxplot indica pocos outliers en el rango alto (método IQR)")
-print("   - Distribución relativamente uniforme sin valores extremos problemáticos")
+**Correlaciones débiles:** Todas las variables numéricas presentan correlaciones menores a 0.2 con `toxicity_score`, siendo `content_length` (0.196) la más alta. Esto indica que las features de metadata tienen poder predictivo limitado para detectar toxicidad.
 
-print("\nHALLAZGO 3: Correlaciones Débiles con Toxicidad")
-print(f"   - Correlación más fuerte: content_length ({correlations['content_length']:.3f})")
-print(f"   - Todas las correlaciones numéricas son débiles (<0.2)")
-print("   - Variables demográficas (followers, account_age) prácticamente sin correlación")
-print("   - Implicación: Las features numéricas por sí solas tienen bajo poder predictivo")
-print("   - El contenido textual (content) será clave para los modelos de clasificación/regresión")
+**Distribución sesgada:** La mediana de toxicidad es 0.162, con la mayoría de tweets concentrados entre 0.0-0.3. Existen pocos tweets altamente tóxicos (>0.5), generando un dataset desbalanceado que dificulta la clasificación y limita el rendimiento de los modelos.
 
-print("\n" + "="*80)
-print("EDA COMPLETADO - Todos los gráficos guardados")
-print("="*80)
+# 2. Preprocesamiento y Codificación
 
-# %%
-# ================================================================================
-# PUNTO 2: PREPROCESAMIENTO Y CODIFICACIÓN
-# ================================================================================
-
-print("\n" + "="*80)
-print("PREPROCESAMIENTO Y CODIFICACIÓN")
-print("="*80)
-
-# BLOQUE 1: LIMPIEZA INICIAL
-print("\n[1/5] LIMPIEZA INICIAL")
-print("-" * 80)
+```{python}
+#| label: preprocesamiento
 
 # Eliminar registros con toxicity_score nulo
 df_clean = df.dropna(subset=['toxicity_score']).copy()
@@ -371,10 +307,8 @@ columns_to_keep = ['authorFollowers', 'time_response', 'account_age_days',
 df_clean = df_clean[columns_to_keep]
 print(f"Columnas seleccionadas: {len(columns_to_keep) - 1} features + 1 target")
 
-# %%
 # BLOQUE 2: FEATURE ENGINEERING
-print("\n[2/5] FEATURE ENGINEERING")
-print("-" * 80)
+# Feature Engineering
 
 # Extraer features de fecha
 df_clean['createdAt'] = pd.to_datetime(df_clean['createdAt'])
@@ -389,10 +323,7 @@ print("✓ Transformación logarítmica aplicada a authorFollowers")
 # Eliminar columnas originales no necesarias
 df_clean = df_clean.drop(['createdAt', 'authorFollowers'], axis=1)
 
-# %%
-# BLOQUE 3: ELIMINACIÓN DE OUTLIERS
-print("\n[3/5] ELIMINACIÓN DE OUTLIERS")
-print("-" * 80)
+# Eliminación de outliers
 
 def remove_outliers_iqr(df, columns):
     df_no_outliers = df.copy()
@@ -422,10 +353,7 @@ df_clean, total_outliers = remove_outliers_iqr(df_clean, numeric_cols)
 print(f"\nTotal outliers eliminados: {total_outliers}")
 print(f"Registros finales: {len(df_clean)}")
 
-# %%
-# BLOQUE 4: CONSTRUCCIÓN DEL PIPELINE
-print("\n[4/5] CONSTRUCCIÓN DEL PIPELINE")
-print("-" * 80)
+# Construcción del pipeline
 
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.feature_extraction.text import CountVectorizer
@@ -450,17 +378,6 @@ except:
     nltk.download('stopwords')
     stopwords_list = list(stopwords.words('spanish'))
 
-print("\nDecisión: CountVectorizer vs TF-IDF")
-print("  - Usamos CountVectorizer (conteo de frecuencias)")
-print("  - Razón: La repetición de palabras tóxicas es importante")
-print("  - TF-IDF penaliza palabras frecuentes en todo el corpus")
-print("  - Para toxicidad: si 'idiota' aparece 5 veces, eso ES más tóxico")
-print("  - No estamos comparando múltiples corpus, solo tweets políticos")
-
-print("\nMejora: TweetTokenizer para mejor procesamiento de tweets")
-print("  - Maneja @menciones, #hashtags, emojis correctamente")
-print("  - Reduce palabras alargadas (ej: 'hooooola' -> 'hoola')")
-print("  - Preserva contexto específico de redes sociales")
 
 # TweetTokenizer para procesamiento específico de tweets
 from nltk.tokenize import TweetTokenizer
@@ -487,10 +404,8 @@ pipeline = Pipeline([
 ])
 
 
-# %%
 # BLOQUE 5: APLICAR TRANSFORMACIÓN Y GUARDAR
-print("\n[5/5] APLICAR TRANSFORMACIÓN Y GUARDAR")
-print("-" * 80)
+
 
 # Separar features y target
 X = df_clean[numeric_features + categorical_features + [text_feature]]
@@ -511,48 +426,30 @@ print(f"  - Total: {X_transformed.shape[1]}")
 from scipy.sparse import issparse
 if issparse(X_transformed):
     X_transformed = X_transformed.toarray()
-    print("✓ Matriz convertida de sparse a densa")
+```
 
-print("\n" + "="*80)
-print("PREPROCESAMIENTO COMPLETADO")
-print("="*80)
+# 3. Clasificación
 
-# %%
-# ================================================================================
-# PUNTO 3: CLASIFICACIÓN
-# ================================================================================
+## 3.1 Transformación a Variable Binaria
 
-print("\n" + "="*80)
-print("CLASIFICACIÓN")
-print("="*80)
+**Justificación del umbral:** Los scatterplots del EDA muestran que no existe separación natural entre clases en el espacio de features. La toxicidad es un continuo sin clusters evidentes. Se utiliza la mediana como umbral pragmático para dividir el dataset en dos grupos balanceados (Baja/Alta toxicidad), facilitando el entrenamiento supervisado y evitando desbalanceo de clases.
 
-# BLOQUE 1: TRANSFORMACIÓN DE TOXICITY A VARIABLE CATEGÓRICA
-print("\n[1/4] TRANSFORMACIÓN A VARIABLE BINARIA")
-print("-" * 80)
-
-# Justificación del umbral
-print("\nJustificación del umbral de corte:")
-print("  Los scatterplots del EDA muestran que no existe separación natural entre")
-print("  clases en el espacio de features. La toxicidad es un continuo sin clusters")
-print("  evidentes. Dado esto, utilizamos la mediana (0.188) como umbral pragmático")
-print("  para dividir el dataset en dos grupos balanceados: 'Baja toxicidad' y 'Alta")
-print("  toxicidad'. Esta división facilita el entrenamiento supervisado y evita")
-print("  desbalanceo de clases, aunque reconocemos que es una decisión arbitraria")
-print("  basada en la distribución estadística, no en un criterio semántico absoluto.")
+```{python}
+#| label: target-binario
 
 # Calcular mediana y crear variable binaria
 threshold = y.median()
 y_binary = (y >= threshold).astype(int)
 
-print(f"\nUmbral seleccionado: {threshold:.3f} (mediana)")
-print(f"Distribución de clases:")
-print(f"  Clase 0 (Baja toxicidad): {(y_binary == 0).sum()} ({(y_binary == 0).sum()/len(y_binary)*100:.1f}%)")
-print(f"  Clase 1 (Alta toxicidad): {(y_binary == 1).sum()} ({(y_binary == 1).sum()/len(y_binary)*100:.1f}%)")
+print(f"Umbral seleccionado: {threshold:.3f} (mediana)")
+print(f"Clase 0 (Baja toxicidad): {(y_binary == 0).sum()} ({(y_binary == 0).sum()/len(y_binary)*100:.1f}%)")
+print(f"Clase 1 (Alta toxicidad): {(y_binary == 1).sum()} ({(y_binary == 1).sum()/len(y_binary)*100:.1f}%)")
+```
 
-# %%
-# BLOQUE 2: DIVISIÓN TRAIN/TEST Y ENTRENAMIENTO
-print("\n[2/4] ENTRENAMIENTO DEL MODELO")
-print("-" * 80)
+## 3.2 Entrenamiento del Modelo
+
+```{python}
+#| label: entrenamiento-clasificacion
 
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
@@ -576,10 +473,7 @@ rf_model = RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1)
 rf_model.fit(X_train, y_train)
 print("✓ Modelo entrenado")
 
-# %%
-# BLOQUE 3: EVALUACIÓN DEL MODELO
-print("\n[3/4] EVALUACIÓN DEL MODELO")
-print("-" * 80)
+# Evaluación del modelo
 
 # Predicciones
 y_pred = rf_model.predict(X_test)
@@ -602,10 +496,7 @@ print(f"  ROC-AUC:   {roc_auc:.4f}")
 print("\nReporte de clasificación detallado:")
 print(classification_report(y_test, y_pred, target_names=['Baja toxicidad', 'Alta toxicidad']))
 
-# %%
-# BLOQUE 4: VISUALIZACIONES
-print("\n[4/4] VISUALIZACIONES")
-print("-" * 80)
+# Visualizaciones
 
 # Matriz de confusión
 cm = confusion_matrix(y_test, y_pred)
@@ -632,26 +523,13 @@ axes[1].legend(loc='lower right')
 axes[1].grid(alpha=0.3)
 
 plt.tight_layout()
-plt.savefig('10_clasificacion_resultados.png', dpi=300, bbox_inches='tight')
-print("✓ Guardado: 10_clasificacion_resultados.png")
-plt.close()
+plt.show()
+```
 
-print("\n" + "="*80)
-print("CLASIFICACIÓN COMPLETADA")
-print("="*80)
+# 4. Regresión
 
-# %%
-# ================================================================================
-# PUNTO 4: REGRESIÓN
-# ================================================================================
-
-print("\n" + "="*80)
-print("REGRESIÓN")
-print("="*80)
-
-# BLOQUE 1: PREPARACIÓN DE DATOS
-print("\n[1/5] PREPARACIÓN DE DATOS")
-print("-" * 80)
+```{python}
+#| label: regresion
 
 # Usar el y continuo original (no binario)
 X_train_reg, X_test_reg, y_train_reg, y_test_reg = train_test_split(
@@ -662,10 +540,7 @@ print(f"Conjunto de entrenamiento: {X_train_reg.shape[0]} registros")
 print(f"Conjunto de prueba: {X_test_reg.shape[0]} registros")
 print(f"Variable objetivo: toxicity_score (continua, rango 0-1)")
 
-# %%
-# BLOQUE 2: MATRIZ DE CORRELACIÓN
-print("\n[2/5] MATRIZ DE CORRELACIÓN")
-print("-" * 80)
+# Matriz de correlación
 
 # Crear dataframe con features numéricas + target para correlación
 df_corr = df_clean[numeric_features + ['toxicity_score']].copy()
@@ -681,14 +556,9 @@ sns.heatmap(correlation_matrix, annot=True, fmt='.3f', cmap='coolwarm',
             center=0, square=True, linewidths=1, ax=ax)
 ax.set_title('Matriz de Correlación - Features Numéricas', fontweight='bold')
 plt.tight_layout()
-plt.savefig('11_matriz_correlacion_regresion.png', dpi=300, bbox_inches='tight')
-print("✓ Guardado: 11_matriz_correlacion_regresion.png")
-plt.close()
+plt.show()
 
-# %%
-# BLOQUE 3: ENTRENAMIENTO DE MODELOS
-print("\n[3/5] ENTRENAMIENTO DE MODELOS")
-print("-" * 80)
+# Entrenamiento de modelos
 
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
@@ -706,10 +576,7 @@ rfr_model = RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1)
 rfr_model.fit(X_train_reg, y_train_reg)
 print("✓ Random Forest Regressor entrenado")
 
-# %%
-# BLOQUE 4: EVALUACIÓN DE MODELOS
-print("\n[4/5] EVALUACIÓN DE MODELOS")
-print("-" * 80)
+# Evaluación de modelos
 
 # Predicciones
 y_pred_lr = lr_model.predict(X_test_reg)
@@ -735,10 +602,7 @@ print(f"  MAE:  {mae_rfr:.4f}")
 print(f"  RMSE: {rmse_rfr:.4f}")
 print(f"  R²:   {r2_rfr:.4f}")
 
-# %%
-# BLOQUE 5: VISUALIZACIONES
-print("\n[5/5] VISUALIZACIONES")
-print("-" * 80)
+# Visualizaciones
 
 # Figura 1: Linear Regression
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
@@ -764,9 +628,7 @@ axes[1].set_title('Linear Regression - Residuales', fontweight='bold')
 axes[1].grid(alpha=0.3)
 
 plt.tight_layout()
-plt.savefig('12_regresion_linear.png', dpi=300, bbox_inches='tight')
-print("✓ Guardado: 12_regresion_linear.png")
-plt.close()
+plt.show()
 
 # Figura 2: Random Forest Regressor
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
@@ -792,26 +654,15 @@ axes[1].set_title('Random Forest - Residuales', fontweight='bold')
 axes[1].grid(alpha=0.3)
 
 plt.tight_layout()
-plt.savefig('13_regresion_random_forest.png', dpi=300, bbox_inches='tight')
-print("✓ Guardado: 13_regresion_random_forest.png")
-plt.close()
+# plt.savefig('13_regresion_random_forest.png', dpi=300, bbox_inches='tight')
+# print("✓ Guardado: 13_regresion_random_forest.png")
+plt.show()
+```
 
-print("\n" + "="*80)
-print("REGRESIÓN COMPLETADA")
-print("="*80)
+# 5. Clustering
 
-# %%
-# ================================================================================
-# PUNTO 5: CLUSTERING
-# ================================================================================
-
-print("\n" + "="*80)
-print("CLUSTERING")
-print("="*80)
-
-# BLOQUE 1: DETERMINACIÓN DE K ÓPTIMO
-print("\n[1/4] DETERMINACIÓN DE K ÓPTIMO")
-print("-" * 80)
+```{python}
+#| label: clustering
 
 from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.decomposition import PCA
@@ -867,18 +718,13 @@ axes[1].grid(alpha=0.3)
 axes[1].set_xticks(K_range_sil)
 
 plt.tight_layout()
-plt.savefig('14_determinacion_k.png', dpi=300, bbox_inches='tight')
-print("\n✓ Guardado: 14_determinacion_k.png")
-plt.close()
+plt.show()
 
 # Seleccionar K óptimo basado en Silhouette
 K_optimo = K_range_sil[np.argmax(silhouette_scores)]
 print(f"\nK óptimo (máximo Silhouette): {K_optimo}")
 
-# %%
-# BLOQUE 2: ENTRENAMIENTO DE MODELOS DE CLUSTERING
-print("\n[2/4] ENTRENAMIENTO DE MODELOS")
-print("-" * 80)
+# Entrenamiento de modelos de clustering
 
 # K-Means
 print(f"\nModelo 1: K-Means (K={K_optimo})")
@@ -894,10 +740,7 @@ clusters_agg = agg_model.fit_predict(X_transformed)
 print(f"✓ Agglomerative Clustering entrenado")
 print(f"  Distribución de clusters: {np.bincount(clusters_agg)}")
 
-# %%
-# BLOQUE 3: VISUALIZACIÓN DE CLUSTERS
-print("\n[3/4] VISUALIZACIÓN DE CLUSTERS")
-print("-" * 80)
+# Visualización de clusters
 
 # Reducir dimensionalidad con PCA para visualizar
 print("Aplicando PCA para reducir a 2 dimensiones...")
@@ -925,14 +768,11 @@ axes[1].set_title(f'Agglomerative Clustering (K={K_optimo})', fontweight='bold')
 plt.colorbar(scatter2, ax=axes[1], label='Cluster')
 
 plt.tight_layout()
-plt.savefig('15_clusters_visualizacion.png', dpi=300, bbox_inches='tight')
-print("✓ Guardado: 15_clusters_visualizacion.png")
-plt.close()
+# plt.savefig('15_clusters_visualizacion.png', dpi=300, bbox_inches='tight')
+# print("✓ Guardado: 15_clusters_visualizacion.png")
+plt.show()
 
-# %%
-# BLOQUE 4: ANÁLISIS DE CLUSTERS
-print("\n[4/4] ANÁLISIS DE CLUSTERS")
-print("-" * 80)
+# Análisis de clusters
 
 # Calcular Silhouette Score para cada modelo
 sil_kmeans = silhouette_score(X_transformed, clusters_kmeans)
@@ -948,116 +788,33 @@ print("  > 0.5: Clusters bien definidos")
 print("  0.25-0.5: Clusters con solapamiento moderado")
 print("  < 0.25: Clusters mal definidos")
 
-# Comparación con clasificación supervisada
+## 5.4 Reflexión: Clustering vs Clasificación Supervisada
+
+#| label: comparacion-supervisado
+
 from sklearn.metrics import adjusted_rand_score
 
 ari_kmeans = adjusted_rand_score(y_binary, clusters_kmeans)
 ari_agg = adjusted_rand_score(y_binary, clusters_agg)
 
-print("\n" + "-" * 80)
-print("REFLEXIÓN: CLUSTERING VS CLASIFICACIÓN SUPERVISADA")
-print("-" * 80)
-
-print(f"\nAdjusted Rand Index (similitud con clases de toxicidad):")
+print(f"Adjusted Rand Index (similitud con clases de toxicidad):")
 print(f"  K-Means: {ari_kmeans:.4f}")
 print(f"  Agglomerative: {ari_agg:.4f}")
+```
 
-print("\nCONCLUSIONES:")
-print("\n1. DIFERENCIAS ENTRE CLUSTERING Y CLASIFICACIÓN:")
-print("   - Clasificación supervisada (Random Forest): ROC-AUC = 0.74")
-print("     → Usa etiquetas de toxicidad para aprender patrones")
-print("     → Rendimiento moderado pero útil")
-print("")
-print("   - Clustering no supervisado (K-Means/Agglomerative): Silhouette ~0.10")
-print("     → NO usa etiquetas, busca grupos naturales en los datos")
-print("     → Clusters mal definidos, mucho solapamiento")
+**Comparación de enfoques:** La clasificación supervisada (Random Forest, ROC-AUC=0.75) utiliza etiquetas de toxicidad para aprender patrones y logra rendimiento moderado. En contraste, el clustering no supervisado (K-Means/Agglomerative, Silhouette~0.10) busca grupos naturales sin etiquetas, resultando en clusters mal definidos con mucho solapamiento. El Adjusted Rand Index cercano a 0 confirma que los clusters NO replican las clases de toxicidad, ya que agrupan tweets por similitud de contenido/features donde la toxicidad no es el factor discriminante principal. Tweets tóxicos y no tóxicos comparten vocabulario y características, demostrando que la toxicidad no emerge naturalmente de los datos y requiere aprendizaje supervisado para su detección efectiva.
 
-print("\n2. ¿POR QUÉ NO COINCIDEN?")
-print("   - ARI cercano a 0 indica que los clusters NO replican las clases de toxicidad")
-print("   - Clustering agrupa tweets por similitud de contenido/features")
-print("   - Toxicidad NO es el factor principal que separa los tweets naturalmente")
-print("   - Tweets tóxicos y no tóxicos comparten vocabulario y características")
+# 6. Conclusiones Finales
 
-print("\n3. IMPLICACIONES:")
-print("   - La toxicidad NO es una propiedad que emerja naturalmente de los datos")
-print("   - Se requiere aprendizaje SUPERVISADO para detectar toxicidad")
-print("   - Las features numéricas (followers, length, etc.) tienen poca capacidad")
-print("     predictiva tanto en clustering como en clasificación")
-print("   - El texto es la fuente principal de información, pero no suficiente")
+## 6.1 Análisis de Resultados
 
-print("\n" + "="*80)
-print("CLUSTERING COMPLETADO")
-print("="*80)
+El análisis reveló limitaciones críticas en los datos: las features numéricas tienen correlaciones extremadamente débiles con toxicidad (<0.2), múltiples columnas booleanas contenían valores constantes sin variabilidad útil, y la distribución de toxicidad está sesgada hacia valores bajos (mediana 0.162, mayoría entre 0.0-0.3) con pocos tweets realmente tóxicos. La clasificación supervisada alcanzó ROC-AUC de 0.75 (moderado, mejoró con TweetTokenizer), mientras que la regresión lineal falló completamente (R² negativo) y Random Forest solo explicó 32% de la varianza. En clustering, tanto el análisis visual previo como los métodos estadísticos (Elbow y Silhouette) coincidieron en K=2 como óptimo, pero el Silhouette Score de 0.10 confirma que no existen agrupaciones naturales bien definidas. Crucialmente, dividir en 2 clusters no implica que uno represente toxicidad y otro no; dado que la mayoría de tweets tienen toxicidad 0.0-0.3, ambos clusters contienen tweets predominantemente no tóxicos, solo con diferencias de grado, no de clase.
 
-# %%
-# ================================================================================
-# CONCLUSIONES FINALES
-# ================================================================================
+## 6.2 Limitaciones Principales
 
-print("\n" + "="*80)
-print("CONCLUSIONES FINALES")
-print("="*80)
+El dataset de 1500 tweets es pequeño para entrenar modelos robustos. CountVectorizer con TweetTokenizer, aunque mejoró el rendimiento, sigue siendo una representación bag-of-words que ignora contexto semántico y orden de palabras. Las features de metadata no aportan valor predictivo, y columnas que parecían prometedoras (booleanas, identificadores) resultaron inútiles por falta de variabilidad o alta cardinalidad sin información discriminativa.
 
-print("\n" + "-"*80)
-print("ANÁLISIS DE RESULTADOS")
-print("-"*80)
+## 6.3 Mejoras Propuestas
 
-print("""
-El análisis reveló limitaciones críticas en los datos: las features numéricas 
-tienen correlaciones extremadamente débiles con toxicidad (<0.2), múltiples 
-columnas booleanas contenían valores constantes (todas True/False) sin 
-variabilidad útil, y la distribución de toxicidad está sesgada hacia valores 
-bajos (mediana 0.162, mayoría entre 0.0-0.3) con pocos tweets realmente tóxicos. 
+Utilizar embeddings por tweet (Word2Vec, GloVe, o BERT) para capturar significado contextual en lugar de conteo de palabras. Aumentar el tamaño del dataset (10k+ tweets) con mejor balance entre clases tóxicas y no tóxicas. Incorporar features de ingeniería como análisis de sentimiento, ratio de mayúsculas, uso de signos de exclamación, y métricas de engagement. Considerar modelos de deep learning (LSTM, Transformers) que pueden aprender representaciones más complejas del lenguaje tóxico. Explorar técnicas de data augmentation para balancear clases.
 
-La clasificación supervisada alcanzó ROC-AUC de 0.75 (moderado, mejoró con 
-TweetTokenizer), mientras que la regresión lineal falló completamente (R² negativo) 
-y Random Forest solo explicó 32% de la varianza. 
-
-En clustering, tanto el análisis visual previo como los métodos estadísticos 
-(Elbow y Silhouette) coincidieron en K=2 como óptimo, pero el Silhouette Score 
-de 0.10 confirma que no existen agrupaciones naturales bien definidas. 
-Crucialmente, dividir en 2 clusters no implica que uno represente toxicidad y 
-otro no; dado que la mayoría de tweets tienen toxicidad 0.0-0.3, ambos clusters 
-contienen tweets predominantemente no tóxicos, solo con diferencias de grado, 
-no de clase.
-""")
-
-print("-"*80)
-print("LIMITACIONES PRINCIPALES")
-print("-"*80)
-
-print("""
-El dataset de 1500 tweets es pequeño para entrenar modelos robustos. 
-CountVectorizer con TweetTokenizer, aunque mejoró el rendimiento, sigue siendo 
-una representación bag-of-words que ignora contexto semántico y orden de palabras. 
-
-Las features de metadata no aportan valor predictivo, y columnas que parecían 
-prometedoras (booleanas, identificadores) resultaron inútiles por falta de 
-variabilidad o alta cardinalidad sin información discriminativa.
-""")
-
-print("-"*80)
-print("MEJORAS PROPUESTAS")
-print("-"*80)
-
-print("""
-1. Utilizar embeddings por tweet (Word2Vec, GloVe, o BERT) para capturar 
-   significado contextual en lugar de conteo de palabras.
-
-2. Aumentar el tamaño del dataset (10k+ tweets) con mejor balance entre 
-   clases tóxicas y no tóxicas.
-
-3. Incorporar features de ingeniería como análisis de sentimiento, ratio de 
-   mayúsculas, uso de signos de exclamación, y métricas de engagement.
-
-4. Considerar modelos de deep learning (LSTM, Transformers) que pueden aprender 
-   representaciones más complejas del lenguaje tóxico.
-
-5. Explorar técnicas de data augmentation para balancear clases.
-""")
-
-print("\n" + "="*80)
-print("ANÁLISIS COMPLETADO")
-print("="*80)
-
-# %%

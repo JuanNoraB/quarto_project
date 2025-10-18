@@ -18,6 +18,8 @@ website:
         text: Regresión Hogares
       - href: Landos.qmd
         text: Clasificación Tweets
+      - href: examen.qmd
+        text: Examen Final
  
 format:
   html:
